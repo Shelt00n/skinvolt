@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SKINVOLT</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,500;0,600;0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: sticky header, vertical live-drop rail on the left, one working area per tab. Graphite + signal yellow, single dark world by choice. */
+:root{
+  --bg:#0e0e10; --bg2:#141417; --panel:#19191d; --panel2:#202025; --line:#2a2a31;
+  --fg:#f4f4f6; --muted:#8d8d98; --dim:#5b5b66; --ink:#151515;
+  --accent:#f8d34a; --accent2:#ff8a1f; --win:#2fe39a; --lose:#ff6b4a; --coin:#ffc94d;
+  --f-display:"Exo 2","Arial Black",system-ui,sans-serif;
+  --f-body:"Exo 2",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:12px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:14px;line-height:1.45;min-height:100%;
+  background:
+    radial-gradient(900px 420px at 50% -8%, rgba(248,211,74,.07) 0%, transparent 65%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 14px),
+    var(--bg);
+  background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select{font:inherit;color:var(--fg)}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.c{display:inline-flex;align-items:center;gap:.35em;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.c::before{content:"";width:.85em;height:.85em;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 35% 30%,#fff3c4 0 15%,var(--coin) 40%,#c9851a 100%);box-shadow:0 0 0 1.5px #8a5a0f inset}
+
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(14,14,16,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hd{display:flex;align-items:center;gap:20px;height:64px}
+.logo{font-family:var(--f-display);font-weight:900;font-size:19px;letter-spacing:.02em;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.logo b{color:var(--accent)}
+.logo svg{width:26px;height:26px}
+nav{display:flex;gap:4px;margin-right:auto}
+nav button{padding:9px 14px;border-radius:9px;font-weight:600;color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.08em}
+nav button:hover{color:var(--fg);background:var(--panel)}
+nav button[aria-current="true"]{color:var(--fg);background:var(--panel2);box-shadow:inset 0 -2px 0 var(--accent)}
+.bal{display:flex;align-items:center;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:3px 3px 3px 12px}
+.bal .c{font-size:15px;font-weight:700;margin-right:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;font-weight:700;transition:transform .12s,filter .12s,background .12s}
+.btn:active{transform:translateY(1px)}
+.btn-hot{background:var(--accent);color:var(--ink);box-shadow:0 6px 22px -8px rgba(248,211,74,.7);text-transform:none}
+.btn-hot:hover{filter:brightness(1.08)}
+.btn-ghost{background:var(--panel2);color:var(--fg);border:1px solid var(--line)}
+.btn-ghost:hover{background:#2a2a31}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn-sm{padding:7px 11px;font-size:12px;border-radius:8px}
+.icon-btn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--muted)}
+.icon-btn:hover{color:var(--fg)}
+.icon-btn svg{width:18px;height:18px}
+
+/* live feed */
+.feed-bar{border-bottom:1px solid var(--line);background:rgba(21,17,38,.6)}
+.feed{display:flex;gap:6px;overflow:hidden;padding-block:8px;mask-image:linear-gradient(90deg,#000 85%,transparent)}
+.feed-label{flex:none;display:flex;flex-direction:column;justify-content:center;padding-right:10px;margin-right:4px;border-right:1px solid var(--line);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.feed-label i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--win);margin-right:6px;box-shadow:0 0 8px var(--win);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.fd{flex:none;width:104px;height:66px;border-radius:9px;background:linear-gradient(180deg,var(--panel2),var(--panel));position:relative;overflow:hidden;padding:5px 7px;border-bottom:2px solid var(--rc)}
+.fd::after{content:"";position:absolute;inset:auto 0 0;height:60%;background:radial-gradient(60% 80% at 50% 100%,color-mix(in srgb,var(--rc) 35%,transparent),transparent)}
+.fd img{position:absolute;left:17px;top:3px;width:70px;height:44px;object-fit:contain;z-index:1}
+.fd span{position:absolute;left:7px;right:7px;bottom:4px;font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;color:var(--muted)}
+.fd span b{color:var(--fg);font-weight:600}
+.fd.me{outline:1px solid var(--accent);outline-offset:-1px}
+.fd.in{animation:feedIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes feedIn{from{margin-left:-110px;opacity:0}to{margin-left:0;opacity:1}}
+
+main{padding-block:28px 60px}
+.view-title{font-family:var(--f-display);font-weight:700;font-size:26px;margin:0 0 4px;text-wrap:balance}
+.view-sub{color:var(--muted);margin:0 0 22px}
+h2.sec{font-family:var(--f-display);font-size:16px;font-weight:700;margin:34px 0 14px;display:flex;align-items:center;gap:10px}
+h2.sec small{font-family:var(--f-body);font-weight:500;font-size:13px;color:var(--muted)}
+
+/* item card */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.it{position:relative;border-radius:var(--r);background:linear-gradient(180deg,var(--panel2),var(--panel) 70%);padding:10px 10px 11px;overflow:hidden;border:1px solid var(--line);min-width:0;transition:transform .15s,border-color .15s}
+.it::before{content:"";position:absolute;inset:auto 0 0;height:3px;background:var(--rc)}
+.it::after{content:"";position:absolute;left:10%;right:10%;top:18px;height:70px;background:radial-gradient(closest-side,color-mix(in srgb,var(--rc) 40%,transparent),transparent);pointer-events:none}
+.it .gun{display:block;width:100%;height:74px;object-fit:contain;user-select:none;position:relative;z-index:1;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))}
+.it .wear{position:absolute;top:8px;right:9px;font-size:10px;font-family:var(--f-mono);color:var(--muted);z-index:2}
+.it .badge{position:absolute;top:8px;left:9px;font-size:10px;font-weight:700;z-index:2;padding:2px 6px;border-radius:5px;background:rgba(0,0,0,.35);color:var(--fg)}
+.it .w{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
+.it .s{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .p{margin-top:6px;font-size:13px;font-weight:700}
+.it .acts{display:flex;gap:6px;margin-top:9px}
+.it .acts .btn{flex:1;padding:6px 0;font-size:11px}
+.it.pick{cursor:pointer}
+.it.pick:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--rc) 60%,var(--line))}
+.it.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 10px 30px -12px rgba(248,211,74,.55)}
+.it.sel .badge{background:var(--accent)}
+.it.off{opacity:.35;pointer-events:none}
+
+/* cases list */
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;min-width:150px}
+.stat dt{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.stat dd{margin:4px 0 0;font-weight:700;font-size:17px}
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.case{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:16px 16px 18px;text-align:center;cursor:pointer;overflow:hidden;transition:transform .2s,border-color .2s}
+.case::before{content:"";position:absolute;inset:-30% -20% auto;height:80%;background:radial-gradient(closest-side,color-mix(in srgb,var(--cc) 45%,transparent),transparent);opacity:.7;transition:opacity .2s}
+.case:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--cc) 70%,var(--line))}
+.case:hover::before{opacity:1}
+.case:hover .crate{transform:translateY(-4px) rotate(-2deg)}
+.crate{width:100%;max-width:190px;height:auto;position:relative;transition:transform .3s;filter:drop-shadow(0 14px 16px rgba(0,0,0,.5))}
+.case h3{font-family:var(--f-display);font-size:15px;margin:8px 0 2px;position:relative}
+.case p{margin:0 0 12px;color:var(--muted);font-size:12px;position:relative}
+.case .price{position:relative;display:inline-flex;padding:7px 14px;border-radius:9px;background:rgba(0,0,0,.3);border:1px solid var(--line);font-weight:700}
+
+/* case opening */
+.back{color:var(--muted);font-weight:600;margin-bottom:14px;display:inline-flex;gap:6px}
+.back:hover{color:var(--fg)}
+.case-head{display:flex;align-items:center;gap:22px;margin-bottom:22px;flex-wrap:wrap}
+.case-head .crate{width:150px}
+.case-head h1{font-family:var(--f-display);font-size:28px;margin:0}
+.case-head p{color:var(--muted);margin:4px 0 0;max-width:60ch}
+.reels{display:flex;flex-direction:column;gap:10px}
+.reel{position:relative;height:178px;border-radius:16px;background:linear-gradient(180deg,#0c0c0e,#18181c);border:1px solid var(--line);overflow:hidden}
+.reel.sm{height:150px}
+.reel::before,.reel::after{content:"";position:absolute;top:0;bottom:0;width:18%;z-index:3;pointer-events:none}
+.reel::before{left:0;background:linear-gradient(90deg,#0d0d0f,transparent)}
+.reel::after{right:0;background:linear-gradient(-90deg,#0d0d0f,transparent)}
+.reel .mark{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--accent);z-index:4;box-shadow:0 0 12px var(--accent)}
+.reel .mark::before,.reel .mark::after{content:"";position:absolute;left:50%;margin-left:-8px;border:8px solid transparent}
+.reel .mark::before{top:0;border-top-color:var(--accent)}
+.reel .mark::after{bottom:0;border-bottom-color:var(--accent)}
+.track{display:flex;gap:8px;position:absolute;left:0;top:50%;margin-top:-75px;will-change:transform}
+.reel.sm .track{margin-top:-63px}
+.track .it{flex:none;width:150px;height:150px;padding:8px}
+.reel.sm .track .it{width:126px;height:126px}
+.reel.sm .track .it .gun{height:56px}
+.track .it.won{border-color:var(--rc);box-shadow:0 0 0 1px var(--rc),0 0 40px -6px var(--rc);animation:wonPop .5s}
+@keyframes wonPop{40%{transform:scale(1.06)}}
+.open-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{min-width:38px;padding:7px 10px;border-radius:7px;font-weight:700;color:var(--muted);font-family:var(--f-mono)}
+.seg button[aria-pressed="true"]{background:var(--panel2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.toggle{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:600;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);width:16px;height:16px}
+.open-ctrl .btn-hot{padding:13px 26px;font-size:15px;margin-left:auto}
+.results{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+.results-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.results-top h3{margin:0 auto 0 0;font-family:var(--f-display);font-size:16px}
+.chance{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:2px}
+
+/* upgrade */
+.up-stage{display:grid;grid-template-columns:1fr minmax(280px,340px) 1fr;gap:16px;align-items:stretch}
+.slot{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;min-width:0;min-height:300px}
+.slot h3{margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.slot h3 .c{color:var(--fg);letter-spacing:0;font-size:13px}
+.slot-body{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.empty{color:var(--dim);text-align:center;font-size:13px;max-width:28ch;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty svg{width:90px;height:45px;opacity:.35}
+.stake{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;width:100%;align-self:start;max-height:230px;overflow:auto}
+.stake .it{padding:6px}
+.stake .it .gun{height:42px}
+.stake .it .w{display:none}
+.stake .it .s{font-size:11px}
+.stake .it .p{font-size:11px;margin-top:2px}
+.stake .it::after{top:6px;height:40px}
+.target .it{width:min(220px,100%);padding:16px}
+.target .it .gun{height:110px}
+.target .it::after{top:30px;height:100px}
+.bal-row{display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.bal-row label{font-size:12px;color:var(--muted);font-weight:600;width:100%}
+.inp{background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-width:0}
+.bal-row .inp{flex:1;font-family:var(--f-mono)}
+.wheel-box{display:flex;flex-direction:column;align-items:center;gap:14px;background:radial-gradient(circle at 50% 42%,rgba(248,211,74,.10),transparent 68%);border-radius:18px;padding:10px 0}
+.wheel{position:relative;width:min(280px,78vw);aspect-ratio:1;max-width:100%}
+.wheel svg{width:100%;height:100%;display:block}
+.arc{transition:stroke-dasharray .5s cubic-bezier(.3,.7,.2,1)}
+.wheel-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.wheel-mid .pct{font-family:var(--f-display);font-weight:900;font-size:40px;line-height:1}
+.wheel-mid .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-top:6px}
+.wheel-mid .roll{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-top:4px;min-height:1.2em}
+.wheel.win .pct{color:var(--win)}
+.wheel.lose .pct{color:var(--lose)}
+.mults{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.mults button{padding:6px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font-family:var(--f-mono);font-weight:700;font-size:12px;color:var(--muted)}
+.mults button:hover{color:var(--fg);border-color:var(--accent2)}
+.wheel-box .btn-hot{padding:14px 40px;font-size:15px;font-family:var(--f-display);letter-spacing:.04em}
+.up-lists{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}
+.panel-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.panel-hd h3{margin:0 auto 0 0;font-family:var(--f-display);font-size:15px}
+.panel .grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));max-height:520px;overflow:auto;padding:2px}
+.panel .it .gun{height:58px}
+.panel .it::after{height:56px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filters .inp{flex:1 1 120px}
+.more{width:100%;margin-top:10px}
+
+/* inventory */
+.inv-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.inv-bar .stat{min-width:0}
+.inv-bar .sp{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+/* modal + toast */
+.modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(6,4,14,.7);backdrop-filter:blur(6px);padding:16px}
+.dlg{width:min(440px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 30px 80px -20px #000}
+.dlg h2{font-family:var(--f-display);margin:0 0 4px;font-size:20px}
+.dlg p{color:var(--muted);margin:0 0 16px}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.presets button{padding:12px 6px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-weight:700;justify-content:center}
+.presets button:hover{border-color:var(--accent)}
+.dlg form{display:flex;gap:8px}
+.dlg form .inp{flex:1;font-family:var(--f-mono)}
+.dlg-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap}
+.link-danger{color:var(--lose);font-weight:600;font-size:13px}
+.toasts{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:120;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--tc,var(--accent));padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px -10px #000;animation:tIn .25s;max-width:320px}
+@keyframes tIn{from{transform:translateY(10px);opacity:0}}
+
+@media (max-width:980px){
+  .up-stage{grid-template-columns:1fr 1fr}
+  .wheel-box{grid-column:1/-1;order:-1}
+  .up-lists{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .hd{gap:10px;height:auto;flex-wrap:wrap;padding-block:10px}
+  nav{order:3;width:100%;margin-right:0}
+  nav button{flex:1;padding:8px 4px;font-size:11px}
+  .logo{margin-right:auto}
+  .up-stage{grid-template-columns:1fr}
+  .slot{min-height:200px}
+  .reel{height:150px}.track{margin-top:-63px}
+  .track .it{width:126px;height:126px}.track .it .gun{height:56px}
+  .open-ctrl .btn-hot{width:100%;margin-left:0}
+  .view-title{font-size:21px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* ---- upgrader-style skin ---- */
+.hd{gap:22px;height:62px}
+.logo{font-size:20px;font-weight:900;font-style:italic;letter-spacing:.01em;text-transform:uppercase}
+.logo b{color:var(--accent)}
+.hstats{display:flex;gap:18px;margin:0}
+.hstats div{display:flex;flex-direction:column}
+.hstats dt{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hstats dd{margin:0;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px}
+.hstats .dot{width:7px;height:7px;border-radius:50%;background:var(--win);box-shadow:0 0 8px var(--win)}
+nav{margin:0 auto}
+nav button{font-weight:800;font-size:12px;letter-spacing:.06em;padding:10px 14px;border-radius:8px}
+nav button[aria-current="true"]{color:var(--accent);background:none;box-shadow:inset 0 -2px 0 var(--accent);border-radius:0}
+.bal{border-radius:10px;background:var(--panel2)}
+.btn{font-weight:800;border-radius:9px}
+.icon-btn[aria-pressed="true"]{color:var(--accent);border-color:rgba(248,211,74,.4)}
+.layout{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:start}
+.feed-bar{position:sticky;top:calc(62px + env(safe-area-inset-top,0px));height:calc(100vh - 62px - env(safe-area-inset-top,0px));border-right:1px solid var(--line);border-bottom:0;background:#121215;overflow:hidden}
+.feed{flex-direction:column;gap:4px;padding:8px 6px;height:100%;mask-image:linear-gradient(180deg,#000 85%,transparent)}
+.feed-label{flex-direction:row;gap:6px;justify-content:center;border-right:0;border-bottom:1px solid var(--line);padding:2px 0 8px;margin:0 0 4px}
+.fd{width:100%;height:86px;border-radius:8px;border-bottom:0;background:linear-gradient(180deg,#1b1b20 0%,color-mix(in srgb,var(--rc) 22%,#1b1b20) 100%)}
+.fd::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rc);z-index:2}
+.fd img{left:8px;right:8px;width:calc(100% - 16px);top:6px;height:50px}
+.fd span{bottom:6px;font-size:10px}
+.fd.in{animation:feedInV .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes feedInV{from{margin-top:-90px;opacity:0}to{margin-top:0;opacity:1}}
+main.wrap{max-width:1240px}
+.it{background:linear-gradient(180deg,#1d1d22 0%,#1a1a1f 55%,color-mix(in srgb,var(--rc) 26%,#1a1a1f) 100%);border-radius:10px}
+.it::before{height:2px;box-shadow:0 0 12px var(--rc)}
+.it .p{color:var(--fg)}
+.it.sel .badge{color:var(--ink)}
+.slot{background:linear-gradient(180deg,#1b1b1f,#151518);border-radius:14px}
+.slot h3{color:var(--fg);font-weight:800;letter-spacing:.02em;text-transform:none;font-size:14px;justify-content:center;text-align:center}
+.panel{border-radius:14px;background:#17171b}
+.panel-hd h3{font-weight:800}
+.view-title{font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.01em}
+.wheel{width:min(300px,78vw)}
+.wheel-mid .chev{width:64px;height:64px;filter:drop-shadow(0 0 18px rgba(248,211,74,.45));margin-bottom:4px}
+.wheel-mid .pct{font-size:30px;font-weight:900}
+.wheel.win .chev,.wheel.lose .chev{display:none}
+.wheel-box .btn-hot{padding:15px 56px;font-size:16px;font-family:var(--f-display);font-weight:900;text-transform:uppercase;border-radius:10px}
+.mults button{border-radius:7px}
+.mults button:hover{border-color:var(--accent);color:var(--accent)}
+.case{border-radius:14px;background:linear-gradient(180deg,#1c1c21,#151518)}
+.case h3{font-weight:900;font-style:italic;text-transform:uppercase}
+.case .price{background:var(--accent);color:var(--ink);border:0}
+.case .price .c::before{box-shadow:0 0 0 1.5px #5a3d0a inset}
+.seg button[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+.reel .mark{background:var(--accent);box-shadow:0 0 14px var(--accent)}
+.reel .mark::before{border-top-color:var(--accent)}.reel .mark::after{border-bottom-color:var(--accent)}
+.toast{border-left-color:var(--tc,var(--accent))}
+
+/* drop reveal */
+.reveal{position:fixed;inset:0;z-index:110;display:grid;place-items:center;background:rgba(5,5,7,.82);backdrop-filter:blur(6px);padding:16px;animation:rvBg .3s ease-out;overflow:hidden}
+@keyframes rvBg{from{opacity:0}}
+.rv-box{position:relative;display:flex;flex-direction:column;align-items:center;gap:18px;width:min(900px,100%);text-align:center}
+.rv-title{font-family:var(--f-display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(22px,4vw,34px);letter-spacing:.02em;animation:rvTitle .6s .1s both cubic-bezier(.2,1.4,.4,1)}
+.rv-title b{color:var(--accent)}
+@keyframes rvTitle{from{opacity:0;transform:translateY(-20px) scale(.9)}}
+.rv-items{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.rv-card{position:relative;width:min(240px,42vw);aspect-ratio:1/1.12;max-width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:12px;border-radius:16px;
+  background:linear-gradient(180deg,#1d1d22,color-mix(in srgb,var(--rc) 30%,#16161a));border:1px solid color-mix(in srgb,var(--rc) 55%,#2a2a31);
+  box-shadow:0 0 60px -10px var(--rc);animation:rvCard .9s both cubic-bezier(.18,1.35,.4,1);animation-delay:var(--d,0s)}
+@keyframes rvCard{0%{opacity:0;transform:scale(.3) rotate(-8deg)}60%{opacity:1}100%{transform:none}}
+.rv-rays{position:absolute;left:50%;top:42%;width:340%;aspect-ratio:1;translate:-50% -50%;pointer-events:none;z-index:0;
+  background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--rc) 40%,transparent) 0 6deg,transparent 6deg 18deg);
+  mask-image:radial-gradient(circle,#000 0,transparent 55%);animation:spin 14s linear infinite;opacity:.55}
+@keyframes spin{to{rotate:360deg}}
+.rv-card img{position:relative;z-index:1;width:92%;height:58%;object-fit:contain;margin-bottom:auto;margin-top:6%;filter:drop-shadow(0 10px 18px rgba(0,0,0,.6));animation:rvFloat 3s ease-in-out infinite;animation-delay:calc(var(--d,0s) + .9s)}
+@keyframes rvFloat{50%{transform:translateY(-6px)}}
+.rv-card .w{position:relative;z-index:1;font-size:12px;color:var(--muted)}
+.rv-card .s{position:relative;z-index:1;font-weight:800;font-size:15px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rv-card .p{position:relative;z-index:1;margin-top:6px;font-weight:800;font-size:15px}
+.rv-card .rar{position:absolute;top:10px;left:10px;z-index:1;font-size:10px;font-weight:800;padding:3px 7px;border-radius:5px;background:var(--rc);color:var(--ink)}
+.rv-items.many .rv-card{width:min(170px,40vw)}
+.rv-acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;animation:rvTitle .5s .6s both}
+.rv-acts .btn{padding:13px 22px;font-size:14px}
+.spark{position:absolute;left:50%;top:45%;width:8px;height:8px;border-radius:2px;background:var(--sc);pointer-events:none;animation:spark 1.3s cubic-bezier(.1,.7,.3,1) forwards;animation-delay:var(--sd)}
+@keyframes spark{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r)) scale(.2);opacity:0}}
+.flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,var(--fc),transparent 55%);animation:flash .8s ease-out forwards;pointer-events:none}
+@keyframes flash{0%{opacity:.9}100%{opacity:0}}
+.wheel.lose{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+
+@media (max-width:1100px){.hstats{display:none}}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .feed-bar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .feed{flex-direction:row;height:auto;padding:8px 16px;mask-image:linear-gradient(90deg,#000 85%,transparent)}
+  .feed-label{flex-direction:column;border-bottom:0;border-right:1px solid var(--line);padding:0 10px 0 0;margin:0 4px 0 0}
+  .fd{flex:none;width:96px;height:72px}
+  .fd img{height:40px}
+  .fd.in{animation:feedIn .45s cubic-bezier(.2,.8,.2,1)}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="defs"></defs></svg>
+
+<header>
+  <div class="wrap hd">
+    <div class="logo">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset="1" stop-color="#f5a623"/></linearGradient></defs><path d="M16 3 4 15h7l5-5 5 5h7z" fill="url(#lg)"/><path d="M16 14 4 26h7l5-5 5 5h7z" fill="url(#lg)" opacity=".75"/></svg>
+      SKIN<b>VOLT</b>
+    </div>
+    <dl class="hstats">
+      <div><dt>Онлайн</dt><dd class="num"><i class="dot"></i><span id="hOnline">4 812</span></dd></div>
+      <div><dt>Кейсов</dt><dd class="num" id="hOpened">0</dd></div>
+      <div><dt>Апгрейдов</dt><dd class="num" id="hUps">0</dd></div>
+    </dl>
+    <nav id="nav">
+      <button data-tab="cases">Кейсы</button>
+      <button data-tab="upgrade">Апгрейд</button>
+      <button data-tab="inventory">Инвентарь <span id="invCount" class="num"></span></button>
+    </nav>
+    <button class="icon-btn" id="musicBtn" aria-label="Музыка" title="Музыка"></button>
+    <button class="icon-btn" id="soundBtn" aria-label="Звуки" title="Звуки"></button>
+    <div class="bal">
+      <span class="c" id="balance">0,00</span>
+      <button class="btn btn-hot btn-sm" data-act="topup">+ Пополнить</button>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <aside class="feed-bar"><div class="feed" id="feed"><div class="feed-label"><span><i></i>Live</span><span>дропы</span></div></div></aside>
+  <main class="wrap" id="view"></main>
+</div>
+<div class="reveal" id="reveal" hidden></div>
+
+<div class="modal" id="modal" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h2 id="mTitle">Пополнить баланс</h2>
+    <p>Монеты бесплатные и существуют только в этом браузере. Выберите сумму или введите свою.</p>
+    <div class="presets" id="presets"></div>
+    <form id="topForm">
+      <input class="inp" id="topAmount" type="number" min="1" max="10000000" step="0.01" placeholder="Своя сумма" inputmode="decimal">
+      <button class="btn btn-hot" type="submit">Начислить</button>
+    </form>
+    <div class="dlg-foot">
+      <span id="resetZone"><button class="link-danger" type="button" data-act="reset1">Сбросить прогресс</button></span>
+      <button class="btn btn-ghost btn-sm" type="button" data-act="close">Закрыть</button>
+    </div>
+  </div>
+</div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ---------- data ---------- */
+const SHAPES={
+  r:'M4 27 L28 25 L32 21 L68 21 L72 24 L103 24 L103 27 L117 27 L117 30 L103 30 L99 33 L72 33 L66 47 L57 47 L61 33 L50 33 L46 44 L38 44 L40 33 L24 34 L8 41 L4 37 Z',
+  sn:'M2 31 L10 27 L28 27 L32 23 L44 23 L46 17 L74 17 L76 23 L80 23 L82 27 L118 27 L118 30 L82 30 L80 33 L56 33 L52 43 L44 43 L46 33 L30 34 L12 39 L2 37 Z',
+  p:'M30 18 L94 18 L97 22 L97 28 L60 28 L58 32 L54 32 L50 49 L36 49 L40 30 L30 28 Z',
+  s:'M14 25 L26 23 L30 19 L84 19 L88 23 L104 23 L104 28 L88 28 L84 32 L66 32 L62 47 L54 47 L56 32 L46 32 L44 41 L38 41 L38 32 L26 32 L14 35 Z',
+  k:'M8 37 L40 31 L46 29 L52 31 L52 39 L46 41 L40 39 Z M52 29 C80 21 104 19 116 23 C104 31 80 39 52 41 Z',
+  gl:'M42 56 L42 36 C37 32 34 24 38 19 L43 21 L45 31 L47 13 C47 8 53 8 53 13 L53 29 L55 9 C55 4 61 4 61 9 L61 29 L63 11 C63 6 69 6 69 11 L69 31 L71 17 C71 12 77 12 77 17 L75 41 C73 47 71 51 71 56 Z'
+};
+// предметы, цены и картинки взяты из каталога upgrader.best: [название оружия, скин, износ, цена, цвет редкости, StatTrak, файл картинки]
+const RAW=[["★ Sport Gloves","Hedge Maze","Factory New",3082397.03,"eb4b4b",0,"16497.png"],["★ Sport Gloves","Pandora's Box","Factory New",2383457.39,"eb4b4b",0,"18730.png"],["M4A4","Howl","Factory New",1389761.93,"e4ae39",1,"15720.png"],["AK-47","Wild Lotus","Factory New",1348170.97,"eb4b4b",0,"15934.png"],["Souvenir AWP","Dragon Lore","Factory New",1260474.53,"b0c3d9",0,"27434.avif"],["Sticker","Natus Vincere (Holo)","Katowice 2014",1233810.85,"8847ff",0,"26321.png"],["★ Butterfly Knife","Doppler","Factory New",1133602.02,"eb4b4b",0,"16449.avif"],["AWP","Gungnir","Minimal Wear",944371.5,"eb4b4b",0,"15936.png"],["AWP","Dragon Lore","Minimal Wear",861024.62,"b0c3d9",0,"15731.avif"],["★ Sport Gloves","Superconductor","Factory New",855626.88,"eb4b4b",0,"24274.png"],["★ Butterfly Knife","Gamma Doppler","Minimal Wear",823856.35,"eb4b4b",0,"17132.avif"],["Sticker","HellRaisers (Holo)","Katowice 2014",795629.32,"8847ff",0,"27567.png"],["★ Karambit","Doppler","Factory New",766360.61,"eb4b4b",1,"18493.avif"],["★ M9 Bayonet","Doppler","Factory New",765658.57,"eb4b4b",0,"16811.avif"],["★ M9 Bayonet","Gamma Doppler","Factory New",671610.47,"eb4b4b",1,"19496.avif"],["★ Karambit","Gamma Doppler","Factory New",657807.76,"eb4b4b",1,"15901.avif"],["★ Moto Gloves","Spearmint","Factory New",545649.63,"eb4b4b",0,"19239.png"],["AK-47","Fire Serpent","Factory New",533264.81,"eb4b4b",1,"15775.png"],["AWP","Medusa","Factory New",528550.42,"eb4b4b",0,"15776.png"],["★ Sport Gloves","Vice","Factory New",527069.15,"eb4b4b",0,"15830.png"],["Sticker","mousesports (Holo)","Katowice 2014",520708.54,"8847ff",0,"27561.png"],["Sticker","Clan-Mystik (Holo)","Katowice 2014",460562.28,"8847ff",0,"25828.png"],["★ Karambit","Case Hardened","Factory New",445725.2,"eb4b4b",1,"28770.png"],["★ Specialist Gloves","Emerald Web","Factory New",440649.23,"eb4b4b",0,"15819.png"],["★ Butterfly Knife","Crimson Web","Factory New",434086.29,"eb4b4b",0,"19574.png"],["★ M9 Bayonet","Crimson Web","Factory New",412950.36,"eb4b4b",0,"21668.png"],["Sticker","Titan","Katowice 2014",369863.49,"4b69ff",0,"27557.png"],["★ Talon Knife","Doppler","Minimal Wear",321413.02,"eb4b4b",0,"15933.avif"],["AK-47","Hydroponic","Factory New",314365.0,"d32ce6",0,"15772.png"],["AUG","Akihabara Accept","Factory New",295522.06,"eb4b4b",0,"15774.png"],["★ Sport Gloves","Arid","Factory New",284794.02,"eb4b4b",0,"17655.png"],["★ Sport Gloves","Slingshot","Factory New",282800.85,"eb4b4b",0,"15956.png"],["★ Butterfly Knife","Fade","Minimal Wear",281491.84,"eb4b4b",1,"15754.png"],["★ Sport Gloves","Nocts","Factory New",270320.14,"eb4b4b",0,"15957.png"],["M4A1-S","Knight","Factory New",255262.05,"d32ce6",0,"15724.png"],["Negev","Mjölnir","Field-Tested",251816.85,"d32ce6",0,"25536.png"],["AWP","The Prince","Factory New",246812.38,"eb4b4b",0,"15932.png"],["★ Skeleton Knife","Doppler","Factory New",243127.49,"eb4b4b",1,"16026.avif"],["MP9","Wild Lily","Factory New",241188.76,"d32ce6",0,"15927.png"],["Souvenir M4A1-S","Knight","Minimal Wear",236632.0,"d32ce6",0,"23109.png"],["★ Bayonet","Gamma Doppler","Minimal Wear",226626.31,"eb4b4b",0,"29106.avif"],["Souvenir M4A1-S","Welcome to the Jungle","Factory New",226224.1,"eb4b4b",0,"27805.png"],["★ Karambit","Fade","Minimal Wear",217931.26,"eb4b4b",0,"15710.png"],["★ Sport Gloves","Amphibious","Factory New",217837.82,"eb4b4b",0,"15831.png"],["★ Specialist Gloves","Crimson Kimono","Minimal Wear",217709.43,"eb4b4b",0,"15797.png"],["★ Bayonet","Doppler","Factory New",213605.27,"eb4b4b",0,"17505.avif"],["★ Driver Gloves","King Snake","Factory New",200343.71,"eb4b4b",0,"15905.png"],["★ Karambit","Autotronic","Factory New",192519.71,"eb4b4b",1,"15784.png"],["Souvenir AK-47","Gold Arabesque","Factory New",190225.08,"eb4b4b",0,"16000.png"],["★ Karambit","Ultraviolet","Factory New",188607.3,"eb4b4b",0,"20694.png"],["★ Flip Knife","Doppler","Minimal Wear",187553.43,"eb4b4b",1,"31059.avif"],["Souvenir Glock-18","Fade","Factory New",187070.77,"8847ff",0,"31178.png"],["★ Driver Gloves","Snow Leopard","Factory New",185841.39,"eb4b4b",0,"15953.png"],["AK-47","Gold Arabesque","Well-Worn",184026.16,"eb4b4b",0,"16455.png"],["★ Specialist Gloves","Foundation","Factory New",180163.32,"eb4b4b",0,"16447.png"],["★ Driver Gloves","Wave Chaser","Factory New",179852.93,"eb4b4b",0,"26100.png"],["M4A1-S","Hot Rod","Minimal Wear",172766.72,"d32ce6",0,"15769.png"],["★ Driver Gloves","Crimson Weave","Factory New",172096.37,"eb4b4b",0,"16842.png"],["★ Specialist Gloves","Cloud Chaser","Factory New",171296.82,"b0c3d9",0,"26394.avif"],["Souvenir MP7","Forest DDPAT","Well-Worn",170094.26,"b0c3d9",0,"30957.png"],["★ Butterfly Knife","Lore","Factory New",163184.37,"eb4b4b",0,"15988.png"],["Sticker","Vox Eminor (Holo)","Katowice 2015",159569.35,"8847ff",0,"19285.png"],["Sticker","ropz (Gold)","Boston 2018",156392.3,"eb4b4b",0,"27691.png"],["AK-47","X-Ray","Factory New",156328.92,"eb4b4b",0,"15959.png"],["AK-47","Wasteland Rebel","Factory New",156149.35,"eb4b4b",1,"15747.png"],["★ Stiletto Knife","Doppler","Factory New",149432.84,"eb4b4b",0,"15912.avif"],["★ Specialist Gloves","Marble Fade","Factory New",141367.52,"eb4b4b",0,"17025.png"],["Souvenir AWP","Desert Hydra","Factory New",137166.65,"eb4b4b",0,"15995.png"],["★ Butterfly Knife","Autotronic","Factory New",135744.7,"eb4b4b",1,"15990.png"],["M4A1-S","Welcome to the Jungle","Factory New",131742.1,"eb4b4b",0,"15952.png"],["Sticker","Fnatic (Holo)","Katowice 2014",129248.4,"8847ff",0,"27564.png"],["M4A1-S","Imminent Danger","Factory New",129153.33,"eb4b4b",0,"15968.png"],["M4A4","Poseidon","Factory New",125097.1,"d32ce6",0,"15762.png"],["Glock-18","Fade","Factory New",120827.17,"8847ff",0,"15696.png"],["★ Karambit","Slaughter","Factory New",120237.26,"eb4b4b",1,"18367.png"],["AWP","Desert Hydra","Factory New",118367.6,"eb4b4b",0,"15963.png"],["★ Sport Gloves","Omega","Factory New",116420.74,"eb4b4b",0,"15832.png"],["AK-47","Vulcan","Factory New",110802.8,"eb4b4b",1,"15723.png"],["Souvenir Desert Eagle","Blaze","Factory New",109888.68,"8847ff",0,"27473.png"],["★ Karambit","Lore","Factory New",108004.39,"eb4b4b",0,"15779.png"],["MP9","Bulldozer","Factory New",105734.14,"8847ff",0,"26748.png"],["Souvenir M4A1-S","Blue Phosphor","Factory New",101620.22,"d32ce6",0,"27978.png"],["★ Driver Gloves","Imperial Plaid","Factory New",101604.78,"eb4b4b",0,"15908.png"],["★ M9 Bayonet","Lore","Factory New",96952.95,"eb4b4b",0,"15778.png"],["AK-47","Jaguar","Factory New",93219.31,"eb4b4b",1,"18028.png"],["AK-47","Case Hardened","Factory New",90870.24,"d32ce6",1,"4913.png"],["Souvenir M4A4","Eye of Horus","Factory New",90488.34,"eb4b4b",0,"19451.png"],["Five-SeveN","Hyper Beast","Factory New",88149.02,"eb4b4b",1,"24366.png"],["★ M9 Bayonet","Marble Fade","Minimal Wear",87177.22,"eb4b4b",0,"6333.png"],["Sticker","electronic (Gold)","Krakow 2017",86033.96,"eb4b4b",0,"26040.png"],["AWP","Lightning Strike","Factory New",82939.79,"eb4b4b",1,"4677.png"],["★ Specialist Gloves","Field Agent","Factory New",82335.26,"eb4b4b",0,"15961.png"],["Souvenir AWP","Lightning Strike","Factory New",80719.92,"eb4b4b",0,"28334.png"],["AWP","Oni Taiji","Factory New",80544.41,"eb4b4b",1,"15829.png"],["Desert Eagle","Blaze","Minimal Wear",79646.54,"8847ff",0,"4707.png"],["★ Nomad Knife","Doppler","Factory New",78599.98,"eb4b4b",1,"16010.avif"],["Souvenir M4A1-S","Imminent Danger","Minimal Wear",76483.3,"eb4b4b",0,"16005.png"],["AWP","Fade","Minimal Wear",76088.41,"eb4b4b",0,"11910.png"],["AK-47","Fuel Injector","Factory New",75877.96,"eb4b4b",1,"7227.png"],["AWP","Containment Breach","Factory New",75395.3,"eb4b4b",1,"15935.png"],["AK-47","Jet Set","Factory New",74245.55,"d32ce6",0,"15727.png"],["Souvenir AK-47","Fuel Injector","Factory New",74013.98,"eb4b4b",0,"28517.png"],["★ Bayonet","Case Hardened","Factory New",70390.83,"eb4b4b",1,"23836.png"],["★ Sport Gloves","Big Game","Factory New",68829.12,"eb4b4b",0,"15955.png"],["MAG-7","Cinquedea","Factory New",66976.52,"d32ce6",0,"11003.png"],["Sticker","LUCAS1 (Gold)","Krakow 2017",64551.07,"eb4b4b",0,"27661.png"],["USP-S","Kill Confirmed","Factory New",64141.55,"eb4b4b",1,"6816.png"],["★ Butterfly Knife","Freehand","Factory New",63342.0,"eb4b4b",0,"12596.png"],["M4A1-S","Blue Phosphor","Minimal Wear",61547.09,"d32ce6",0,"11665.png"],["SSG 08","Blood in the Water","Factory New",58804.75,"eb4b4b",1,"4961.png"],["★ Driver Gloves","Convoy","Minimal Wear",57336.48,"eb4b4b",0,"8091.png"],["AK-47","AUTOEXEC","Factory New",57270.66,"eb4b4b",0,"27425.png"],["★ Butterfly Knife","Ultraviolet","Field-Tested",56984.64,"eb4b4b",1,"8344.png"],["★ Butterfly Knife","Bright Water","Battle-Scarred",51144.88,"eb4b4b",1,"17101.png"],["Glock-18","Ghost Protocol","Factory New",49110.26,"eb4b4b",0,"27208.png"],["★ Hand Wraps","Leather","Field-Tested",48138.46,"eb4b4b",0,"7980.png"],["Souvenir M4A1-S","Master Piece","Factory New",46933.45,"d32ce6",0,"15777.png"],["★ Talon Knife","Tiger Tooth","Factory New",46007.15,"eb4b4b",1,"10232.png"],["Sticker","flamie (Gold)","Krakow 2017",45231.98,"eb4b4b",0,"28086.png"],["AK-47","Leet Museo","Factory New",43767.77,"eb4b4b",0,"12190.png"],["★ Huntsman Knife","Blue Steel","Factory New",41321.2,"eb4b4b",0,"23093.png"],["P90","Emerald Dragon","Factory New",40920.61,"d32ce6",0,"25521.png"],["★ Moto Gloves","Boom!","Field-Tested",40375.4,"eb4b4b",0,"8026.png"],["Desert Eagle","Hand Cannon","Minimal Wear",39026.57,"8847ff",0,"5428.png"],["AWP","LongDog","Factory New",38452.91,"eb4b4b",0,"16013.png"],["Souvenir M4A1-S","Fade","Factory New",37976.76,"eb4b4b",0,"27298.png"],["★ Kukri Knife","Crimson Web","Factory New",37164.22,"eb4b4b",0,"14087.png"],["MAC-10","Stalker","Factory New",35727.63,"eb4b4b",1,"11044.png"],["AK-47","Neon Rider","Factory New",34444.63,"eb4b4b",1,"9218.png"],["★ Talon Knife","Night Stripe","Minimal Wear",33342.0,"eb4b4b",1,"9529.png"],["★ Specialist Gloves","Big Swell","Minimal Wear",33198.18,"eb4b4b",0,"25036.png"],["Sticker","autimatic (Gold)","Krakow 2017",32990.17,"eb4b4b",0,"22298.png"],["P90","Astral Jörmungandr","Factory New",32307.63,"8847ff",0,"10791.png"],["P90","Death by Kitty","Minimal Wear",31383.77,"eb4b4b",1,"16844.png"],["Glock-18","Gamma Doppler","Factory New",31092.06,"eb4b4b",0,"12223.avif"],["★ M9 Bayonet","Night","Battle-Scarred",30026.81,"eb4b4b",0,"4909.png"],["AUG","Midnight Lily","Factory New",29733.49,"8847ff",0,"10846.png"],["MAC-10","Hot Snakes","Minimal Wear",28786.87,"d32ce6",0,"11803.png"],["Negev","Anodized Navy","Factory New",28470.79,"4b69ff",0,"21015.png"],["P90","Asiimov","Factory New",28289.59,"eb4b4b",1,"5578.png"],["★ Moto Gloves","Cool Mint","Well-Worn",27680.99,"eb4b4b",0,"8075.png"],["★ Falchion Knife","Gamma Doppler","Minimal Wear",26938.33,"eb4b4b",0,"12760.avif"],["AK-47","Panthera onca","Factory New",26697.0,"d32ce6",0,"11848.png"],["Nova","Bloomstick","Factory New",26588.12,"d32ce6",1,"21654.png"],["Glock-18","Synth Leaf","Field-Tested",24971.15,"8847ff",0,"16331.png"],["AWP","Hyper Beast","Factory New",24358.5,"eb4b4b",1,"6608.png"],["★ Bayonet","Blue Steel","Battle-Scarred",24265.87,"eb4b4b",1,"5038.png"],["M4A4","Buzz Kill","Minimal Wear",23589.83,"eb4b4b",0,"3900.png"],["Sticker","Team Liquid (Foil)","Atlanta 2017",23564.64,"d32ce6",0,"8151.png"],["MAG-7","Bulldozer","Factory New",23275.37,"8847ff",0,"15359.png"],["★ Hand Wraps","Slaughter","Well-Worn",23194.93,"eb4b4b",0,"8078.png"],["P90","Run and Hide","Factory New",22381.57,"d32ce6",0,"11845.png"],["★ Stiletto Knife","Blue Steel","Battle-Scarred",21760.79,"eb4b4b",1,"9450.png"],["Nova","Modern Hunter","Factory New",21040.87,"4b69ff",0,"29092.png"],["AK-47","Neon Revolution","Factory New",20762.98,"eb4b4b",1,"7852.png"],["M249","Blizzard Marbleized","Factory New",20466.4,"5e98d9",0,"26716.png"],["Dual Berettas","Duelist","Field-Tested",20148.7,"8847ff",0,"6524.png"],["★ Sport Gloves","Violet Beadwork","Field-Tested",20014.63,"eb4b4b",0,"24465.png"],["★ Shadow Daggers","Gamma Doppler","Factory New",19554.73,"eb4b4b",0,"12195.avif"],["MP9","Hot Rod","Minimal Wear",19150.89,"4b69ff",0,"4452.png"],["AWP","CMYK","Minimal Wear",18881.94,"eb4b4b",0,"3911.png"],["M4A1-S","Chantico's Fire","Factory New",18348.91,"eb4b4b",0,"7377.png"],["★ Skeleton Knife","Rust Coat","Well-Worn",17567.24,"eb4b4b",0,"17843.png"],["Sticker","cajunb (Gold)","Boston 2018",16859.51,"eb4b4b",0,"22338.png"],["★ Driver Gloves","Plum Quill","Minimal Wear",16087.59,"eb4b4b",0,"24284.png"],["Souvenir USP-S","Royal Blue","Factory New",15821.08,"5e98d9",0,"22004.png"],["★ Stiletto Knife","Scorched","Minimal Wear",15804.01,"eb4b4b",0,"9209.png"],["AK-47","The Empress","Minimal Wear",15709.76,"eb4b4b",1,"8681.png"],["AWP","Silk Tiger","Field-Tested",14733.89,"d32ce6",0,"11784.png"],["Souvenir SG 553","Hazard Pay","Factory New",14527.5,"d32ce6",0,"12958.png"],["Souvenir MP5-SD","Oxide Oasis","Factory New",14486.06,"d32ce6",0,"12854.png"],["★ Skeleton Knife","Urban Masked","Minimal Wear",14192.74,"eb4b4b",0,"11103.png"],["★ Moto Gloves","POW!","Minimal Wear",13453.32,"eb4b4b",0,"8909.png"],["AK-47","First Class","Minimal Wear",12931.66,"8847ff",0,"5418.png"],["Souvenir Glock-18","Water Elemental","Minimal Wear",12828.47,"d32ce6",0,"29319.png"],["★ Skeleton Knife","Night Stripe","Battle-Scarred",12758.59,"eb4b4b",0,"11052.png"],["Sticker","Happy (Foil)","Atlanta 2017",12207.69,"d32ce6",0,"24913.png"],["Sawed-Off","The Kraken","Factory New",11570.65,"eb4b4b",1,"4702.png"],["★ Bayonet","Safari Mesh","Battle-Scarred",11460.14,"eb4b4b",0,"4698.png"],["AUG","Bengal Tiger","Factory New",11346.39,"d32ce6",1,"16950.png"],["★ Sport Gloves","Scarlet Shamagh","Battle-Scarred",11172.5,"eb4b4b",0,"3802.png"],["AWP","Man-o'-war","Minimal Wear",11164.38,"eb4b4b",1,"6087.png"],["MAC-10","Neon Rider","Minimal Wear",11144.06,"eb4b4b",0,"6249.png"],["Nova","Baroque Orange","Factory New",10942.55,"8847ff",0,"10865.png"],["MAG-7","Counter Terrace","Factory New",10669.54,"4b69ff",0,"6559.png"],["★ Shadow Daggers","Lore","Factory New",10305.52,"eb4b4b",0,"12488.png"],["P250","See Ya Later","Factory New",10225.89,"eb4b4b",0,"8646.png"],["Souvenir AK-47","B the Monster","Field-Tested",9945.56,"eb4b4b",0,"18976.png"],["★ Driver Gloves","Hand Sweaters","Well-Worn",9313.4,"eb4b4b",0,"25153.png"],["★ Shadow Daggers","Autotronic","Factory New",9260.58,"eb4b4b",1,"12670.png"],["Sawed-Off","Copper","Field-Tested",9120.01,"4b69ff",0,"4419.png"],["M4A1-S","Mecha Industries","Field-Tested",8977.01,"eb4b4b",1,"7516.png"],["Sticker","ANDROID (Gold)","London 2018",8889.25,"eb4b4b",0,"29583.png"],["MAC-10","Copper Borre","Minimal Wear",8803.12,"4b69ff",0,"10824.png"],["SSG 08","Dragonfire","Battle-Scarred",8611.36,"eb4b4b",1,"8089.png"],["★ Falchion Knife","Freehand","Field-Tested",8329.41,"eb4b4b",1,"3606.png"],["Desert Eagle","Pilot","Field-Tested",8187.21,"8847ff",0,"5390.png"],["Souvenir AK-47","Slate","Factory New",7854.88,"8847ff",0,"27973.png"],["★ Bloodhound Gloves","Bronzed","Well-Worn",7794.75,"eb4b4b",0,"17493.png"],["★ Paracord Knife","Scorched","Minimal Wear",7478.67,"eb4b4b",1,"11089.png"],["FAMAS","Bad Trip","Factory New",7082.96,"eb4b4b",1,"14511.png"],["Souvenir P90","Run and Hide","Battle-Scarred",6820.51,"d32ce6",0,"12857.png"],["★ Bowie Knife","Bright Water","Minimal Wear",6722.19,"eb4b4b",1,"12648.png"],["Sawed-Off","Mosaico","Factory New",6597.87,"5e98d9",0,"21017.png"],["★ Moto Gloves","Blood Pressure","Battle-Scarred",6536.93,"eb4b4b",0,"11865.png"],["Five-SeveN","Berries And Cherries","Factory New",6536.93,"8847ff",0,"11656.png"],["AWP","Printstream","Field-Tested",6534.49,"eb4b4b",1,"3423.png"],["Sticker","jdm64 (Foil)","Cologne 2016",6377.67,"d32ce6",0,"7573.png"],["AK-47","Rat Rod","Factory New",6165.6,"8847ff",0,"3312.png"],["★ Falchion Knife","Urban Masked","Battle-Scarred",6037.21,"eb4b4b",0,"6551.png"],["M4A1-S","Player Two","Minimal Wear",5582.19,"eb4b4b",0,"3167.png"],["★ Huntsman Knife","Bright Water","Minimal Wear",5427.81,"eb4b4b",0,"3579.png"],["★ Hand Wraps","Duct Tape","Minimal Wear",5392.05,"eb4b4b",0,"8940.png"],["P90","Cold Blooded","Minimal Wear",5267.73,"d32ce6",0,"16178.png"],["Glock-18","Bullet Queen","Battle-Scarred",5214.92,"eb4b4b",1,"15610.png"],["AWP","Neo-Noir","Battle-Scarred",5053.22,"eb4b4b",1,"9907.png"],["★ Survival Knife","Forest DDPAT","Field-Tested",4879.34,"eb4b4b",1,"11093.png"],["AK-47","Nightwish","Battle-Scarred",4799.71,"eb4b4b",1,"13166.png"],["Sticker","myXMG","DreamHack 2014",4563.26,"4b69ff",0,"18432.png"],["★ Driver Gloves","Queen Jaguar","Well-Worn",4545.38,"eb4b4b",0,"11851.png"],["Negev","Loudmouth","Minimal Wear",4512.88,"8847ff",1,"6582.png"],["★ Survival Knife","Urban Masked","Field-Tested",4383.68,"eb4b4b",0,"3280.png"],["M4A4","Desolate Space","Minimal Wear",4361.75,"d32ce6",1,"7485.png"],["Glock-18","AXIA","Factory New",4169.17,"d32ce6",0,"3728.png"],["MAC-10","Toybox","Factory New",4083.85,"d32ce6",0,"12219.png"],["★ Kukri Knife","Scorched","Field-Tested",3940.85,"eb4b4b",0,"3308.png"],["Souvenir AWP","Crakow!","Well-Worn",3902.66,"d32ce6",0,"18876.png"],["★ Hand Wraps","Constrictor","Well-Worn",3771.02,"eb4b4b",0,"3126.png"],["Souvenir AK-47","Safety Net","Factory New",3753.15,"8847ff",0,"9508.png"],["★ Shadow Daggers","Black Laminate","Field-Tested",3540.26,"eb4b4b",0,"3121.png"],["XM1014","Tranquility","Minimal Wear",3428.94,"d32ce6",1,"5959.png"],["M4A1-S","Vaporwave","Battle-Scarred",3420.0,"eb4b4b",0,"3075.png"],["P250","Apep's Curse","Battle-Scarred",3337.94,"d32ce6",0,"13664.png"],["Sticker","Flipsid3 Tactics (Holo)","Cologne 2016",3278.62,"8847ff",0,"7537.png"],["★ Hydra Gloves","Mangrove","Well-Worn",3168.12,"eb4b4b",0,"3145.png"],["MP9","Food Chain","Factory New",3127.49,"d32ce6",1,"12021.png"],["AK-47","Cartel","Well-Worn",2977.98,"d32ce6",0,"6067.png"],["AWP","Fever Dream","Factory New",2960.92,"d32ce6",1,"3020.png"],["M4A4","In Living Color","Well-Worn",2702.53,"eb4b4b",0,"12013.png"],["USP-S","Business Class","Battle-Scarred",2668.4,"4b69ff",0,"5403.png"],["★ Hydra Gloves","Rattler","Field-Tested",2652.15,"eb4b4b",0,"3185.png"],["MP7","Full Stop","Field-Tested",2456.33,"4b69ff",0,"6471.png"],["Souvenir XM1014","Gum Wall Camo","Minimal Wear",2453.89,"5e98d9",0,"29486.png"],["Sticker","DavCost (Foil)","Cluj-Napoca 2015",2359.63,"d32ce6",0,"22084.png"],["SCAR-20","Cyrex","Minimal Wear",2314.94,"d32ce6",0,"5167.png"],["AK-47","Redline","Well-Worn",2251.56,"d32ce6",0,"4826.png"],["CZ75-Auto","The Fuschia Is Now","Field-Tested",2132.93,"d32ce6",1,"4740.png"],["AUG","Lil' Pig","Field-Tested",2123.18,"d32ce6",0,"2979.png"],["Souvenir MAC-10","Case Hardened","Battle-Scarred",1906.23,"8847ff",0,"13011.png"],["AK-47","Point Disarray","Minimal Wear",1853.42,"d32ce6",0,"2903.png"],["SSG 08","Death's Head","Field-Tested",1792.48,"8847ff",0,"2941.png"],["Souvenir XM1014","Ancient Lore","Minimal Wear",1743.72,"8847ff",0,"16647.png"],["P250","Muertos","Factory New",1706.35,"d32ce6",0,"2882.png"],["Sticker","Vega Squadron (Holo)","Boston 2018",1698.22,"8847ff",0,"16562.png"],["M4A4","Cyber Security","Battle-Scarred",1674.66,"d32ce6",0,"11721.png"],["MP7","Scorched","Factory New",1471.52,"b0c3d9",0,"19868.png"],["AK-47","Frontside Misty","Field-Tested",1404.08,"d32ce6",0,"6688.png"],["SSG 08","Big Iron","Minimal Wear",1380.52,"d32ce6",0,"6736.png"],["Glock-18","Ramese's Reach","Minimal Wear",1363.45,"8847ff",0,"2704.png"],["Souvenir AUG","Navy Murano","Battle-Scarred",1316.32,"b0c3d9",0,"29240.png"],["Souvenir Negev","CaliCamo","Field-Tested",1259.45,"5e98d9",0,"4615.png"],["Sticker","Ninjas in Pyjamas (Foil)","Cologne 2015",1221.26,"d32ce6",0,"16981.png"],["MP7","Olive Plaid","Factory New",1142.44,"b0c3d9",0,"20707.png"],["AK-47","Jungle Spray","Minimal Wear",1092.06,"5e98d9",0,"4193.png"],["Dual Berettas","Pyre","Field-Tested",1089.62,"5e98d9",0,"10686.png"],["G3SG1","New Roots","Factory New",1046.56,"4b69ff",0,"12274.png"],["M4A1-S","Black Lotus","Battle-Scarred",1036.0,"d32ce6",1,"2829.png"],["Sawed-Off","Wasteland Princess","Field-Tested",904.36,"d32ce6",1,"8032.png"],["PP-Bizon","Antique","Minimal Wear",886.49,"8847ff",1,"5174.png"],["Sticker","Happy","Atlanta 2017",879.17,"4b69ff",0,"18714.png"],["Dual Berettas","Marina","Battle-Scarred",872.67,"8847ff",0,"15466.png"],["AK-47","Ice Coaled","Battle-Scarred",845.86,"d32ce6",1,"2676.png"],["Galil AR","Vandal","Factory New",814.17,"4b69ff",0,"11532.png"],["G3SG1","High Seas","Factory New",807.67,"8847ff",1,"9129.png"],["CZ75-Auto","Tigris","Factory New",695.54,"8847ff",1,"5546.png"],["P90","Nostalgia","Battle-Scarred",689.85,"d32ce6",1,"16952.png"],["AK-47","Steel Delta","Factory New",663.04,"4b69ff",0,"2432.png"],["MAG-7","Praetorian","Factory New",650.04,"8847ff",1,"7064.png"],["M4A4","Etch Lord","Factory New",640.29,"8847ff",1,"13918.png"],["Sticker","Twistzz (Holo)","Shanghai 2024",633.79,"d32ce6",0,"14310.png"],["G3SG1","Flux","Battle-Scarred",620.78,"d32ce6",0,"6749.png"],["USP-S","Stainless","Battle-Scarred",558.22,"4b69ff",0,"4329.png"],["MAC-10","Curse","Minimal Wear",532.22,"8847ff",0,"5135.png"],["AK-47","The Outsiders","Well-Worn",514.34,"d32ce6",0,"14129.png"],["FAMAS","ZX Spectron","Minimal Wear",505.4,"8847ff",0,"12319.png"],["Souvenir SSG 08","Detour","Field-Tested",479.4,"4b69ff",0,"5797.png"],["AK-47","Nouveau Rouge","Battle-Scarred",472.09,"d32ce6",0,"2791.png"],["XM1014","Red Python","Minimal Wear",465.59,"4b69ff",1,"18885.png"],["Sticker","Staehr (Gold)","Budapest 2025",454.21,"eb4b4b",0,"25095.png"],["CZ75-Auto","Slalom","Well-Worn",446.09,"8847ff",0,"2470.png"],["Souvenir AK-47","Safari Mesh","Minimal Wear",413.59,"5e98d9",0,"4744.png"],["MP7","Vault Heist","Minimal Wear",411.96,"5e98d9",0,"11534.png"],["AUG","Plague","Factory New",396.52,"4b69ff",1,"12317.png"],["SCAR-20","Crimson Web","Field-Tested",370.52,"4b69ff",1,"4118.png"],["AK-47","Searing Rage","Battle-Scarred",360.77,"d32ce6",0,"2341.png"],["USP-S","Torque","Battle-Scarred",357.52,"4b69ff",1,"19041.png"],["MAG-7","Memento","Factory New",334.77,"4b69ff",0,"3967.png"],["AK-47","Baroque Purple","Well-Worn",331.52,"5e98d9",0,"10732.png"],["Sticker","paiN Gaming (Holo)","Shanghai 2024",327.46,"d32ce6",0,"14365.png"],["AK-47","Slate","Well-Worn",322.58,"8847ff",0,"12036.png"],["MAC-10","Lapis Gator","Factory New",319.33,"4b69ff",1,"7131.png"],["AUG","Navy Murano","Minimal Wear",311.21,"b0c3d9",0,"2184.png"],["CZ75-Auto","Army Sheen","Factory New",284.39,"b0c3d9",0,"6459.png"],["Souvenir SCAR-20","Storm","Minimal Wear",281.95,"b0c3d9",0,"5760.png"],["Souvenir MAC-10","Indigo","Well-Worn",247.83,"b0c3d9",0,"16290.png"],["M4A1-S","Glitched Paint","Minimal Wear",244.58,"8847ff",0,"2742.png"],["AK-47","Crossfade","Minimal Wear",243.76,"4b69ff",0,"2191.png"],["M249","Humidor","Minimal Wear",241.33,"4b69ff",0,"12276.png"],["Sticker","MIBR (Holo)","Katowice 2019",235.64,"8847ff",0,"9948.png"],["AK-47","Safety Net","Field-Tested",233.2,"8847ff",0,"9608.png"],["Tec-9","Isaac","Battle-Scarred",227.51,"4b69ff",1,"5149.png"],["AWP","Worm God","Well-Worn",216.95,"8847ff",0,"6245.png"],["AK-47","Uncharted","Battle-Scarred",193.39,"4b69ff",1,"10142.png"],["Galil AR","Sandstorm","Battle-Scarred",192.57,"4b69ff",0,"4100.png"],["AK-47","Midnight Laminate","Battle-Scarred",192.57,"8847ff",0,"2349.png"],["Souvenir AK-47","Steel Delta","Field-Tested",191.76,"4b69ff",0,"2399.png"],["MP9","Arctic Tri-Tone","Battle-Scarred",191.76,"8847ff",0,"2372.png"],["Dual Berettas","Tread","Minimal Wear",182.01,"4b69ff",0,"12368.png"],["XM1014","Grassland","Field-Tested",173.07,"b0c3d9",0,"3952.png"],["Sticker","Apeks (Gold)","Paris 2023",169.01,"eb4b4b",0,"1907.png"],["AK-47","Breakthrough","Battle-Scarred",166.57,"8847ff",0,"23131.png"],["AWP","Acheron","Minimal Wear",166.57,"4b69ff",0,"1397.png"],["AK-47","Emerald Pinstripe","Well-Worn",165.76,"8847ff",0,"5203.png"],["AK-47","Elite Build","Field-Tested",164.13,"4b69ff",0,"1783.png"],["Galil AR","Kami","Battle-Scarred",151.13,"4b69ff",1,"5186.png"],["UMP-45","Briefing","Factory New",148.7,"4b69ff",1,"7836.png"],["Glock-18","Weasel","Minimal Wear",145.45,"8847ff",0,"1728.png"],["AK-47","Wintergreen","Minimal Wear",132.44,"4b69ff",0,"2475.png"],["G3SG1","Murky","Minimal Wear",129.19,"4b69ff",1,"5886.png"],["MAG-7","Seabird","Battle-Scarred",123.51,"b0c3d9",0,"6453.png"],["Sticker","Spinx (Holo)","Cologne 2026",121.88,"d32ce6",0,"26574.png"],["Galil AR","Akoben","Factory New",119.44,"4b69ff",0,"1640.png"],["CZ75-Auto","Pole Position","Field-Tested",117.01,"8847ff",0,"1630.png"],["MAC-10","Rangeen","Factory New",115.38,"4b69ff",1,"1845.png"],["SSG 08","Dezastre","Factory New",99.13,"4b69ff",1,"1729.png"],["SG 553","Anodized Navy","Minimal Wear",93.44,"4b69ff",0,"4434.png"],["Souvenir Glock-18","Red Tire","Field-Tested",93.44,"5e98d9",0,"883.png"],["MAG-7","Copper Coated","Field-Tested",89.38,"4b69ff",0,"997.png"],["MP7","Armor Core","Factory New",89.38,"4b69ff",0,"1135.png"],["Sticker","siuhy (Gold)","Paris 2023",87.75,"eb4b4b",0,"13806.png"],["SCAR-20","Enforcer","Field-Tested",75.57,"8847ff",1,"11232.png"],["Desert Eagle","Bronze Deco","Minimal Wear",74.75,"4b69ff",1,"1553.png"],["FAMAS","Corp Defense","Factory New",73.94,"5e98d9",0,"27142.png"],["PP-Bizon","RMX","Factory New",69.88,"4b69ff",0,"24497.png"],["MAG-7","Heaven Guard","Minimal Wear",64.19,"4b69ff",1,"1500.png"],["Sticker","chelo (Foil)","Berlin 2019",63.38,"8847ff",0,"10403.png"],["Desert Eagle","Blue Ply","Minimal Wear",59.32,"4b69ff",0,"1065.png"],["AWP","Arsenic Spill","Factory New",58.5,"4b69ff",0,"2137.png"],["Galil AR","Signal","Well-Worn",57.69,"8847ff",0,"9887.png"],["MAC-10","Calf Skin","Factory New",53.63,"5e98d9",0,"621.png"],["Desert Eagle","Trigger Discipline","Battle-Scarred",47.94,"8847ff",0,"12056.png"],["Souvenir FAMAS","2A2F","Field-Tested",46.32,"4b69ff",0,"15255.png"],["Negev","Terrain","Field-Tested",46.32,"4b69ff",1,"1063.png"],["SCAR-20","Assault","Factory New",44.69,"4b69ff",0,"10473.png"],["Sticker","compLexity Gaming (Holo)","Berlin 2019",44.69,"8847ff",0,"10369.png"],["MP5-SD","Condition Zero","Battle-Scarred",42.25,"4b69ff",0,"11563.png"],["Five-SeveN","Capillary","Minimal Wear",38.19,"4b69ff",0,"766.png"],["SG 553","Lush Ruins","Minimal Wear",35.75,"b0c3d9",0,"11526.png"],["SSG 08","Hand Brake","Battle-Scarred",34.94,"4b69ff",0,"372.png"],["Sticker","Astralis","Berlin 2019",32.5,"4b69ff",0,"10361.png"],["Negev","dev_texture","Well-Worn",32.5,"8847ff",0,"12097.png"],["MP5-SD","Kitbash","Well-Worn",32.5,"8847ff",0,"11464.png"],["AK-47","VariCamo Grey","Factory New",30.06,"5e98d9",0,"1745.png"],["Dual Berettas","Elite 1.6","Minimal Wear",30.06,"4b69ff",0,"10459.png"],["Souvenir AUG","Snake Pit","Factory New",28.44,"b0c3d9",0,"388.png"],["Souvenir SSG 08","Azure Glyph","Well-Worn",26.81,"5e98d9",0,"13831.png"],["AK-47","Olive Polycam","Factory New",24.38,"5e98d9",0,"1557.png"],["MAC-10","Arabesque Mosaic","Well-Worn",24.38,"4b69ff",0,"27133.png"],["R8 Revolver","Monarch","Battle-Scarred",24.38,"4b69ff",0,"27228.png"],["Sticker","Hello CZ75-Auto",null,23.56,"4b69ff",0,"11565.png"],["Negev","Prototype","Well-Worn",23.56,"4b69ff",0,"11187.png"],["FAMAS","Teardown","Minimal Wear",22.75,"4b69ff",0,"711.png"],["SCAR-20","Trail Blazer","Battle-Scarred",20.31,"4b69ff",1,"14250.png"],["MAC-10","Candy Apple","Minimal Wear",19.5,"5e98d9",0,"332.png"],["P250","Cassette","Minimal Wear",19.5,"4b69ff",1,"418.png"],["AK-47","Safari Mesh","Minimal Wear",18.69,"5e98d9",0,"318.png"],["SG 553","Bleached","Minimal Wear",17.06,"b0c3d9",0,"12461.png"],["Sticker","rigoN (Holo)","Paris 2023",17.06,"d32ce6",0,"16383.png"],["MAG-7","Navy Sheen","Minimal Wear",17.06,"b0c3d9",0,"12166.png"],["G3SG1","VariCamo","Factory New",15.44,"5e98d9",0,"125.png"],["R8 Revolver","Nitro","Minimal Wear",15.44,"5e98d9",0,"50.png"],["PP-Bizon","Anolis","Well-Worn",14.63,"b0c3d9",0,"12154.png"],["Galil AR","Destroyer","Minimal Wear",13.0,"4b69ff",0,"181.png"],["SCAR-20","Poultrygeist","Minimal Wear",12.19,"4b69ff",1,"377.png"],["Sticker","saffee (Foil)","Austin 2025",12.19,"8847ff",0,"25919.png"],["Souvenir M249","Contrast Spray","Field-Tested",12.19,"b0c3d9",0,"26217.png"],["Dual Berettas","Stained","Field-Tested",12.19,"5e98d9",0,"53.png"],["Souvenir MP7","Prey","Minimal Wear",11.38,"b0c3d9",0,"12951.png"],["SG 553","Damascus Steel","Field-Tested",10.56,"4b69ff",0,"707.png"],["Tec-9","Blue Blast","Factory New",10.56,"b0c3d9",0,"673.png"],["SSG 08","Memorial","Well-Worn",8.94,"4b69ff",0,"14555.png"],["Sticker","S1ren","Austin 2025",8.94,"4b69ff",0,"27054.png"],["Souvenir Sawed-Off","Parched","Battle-Scarred",8.94,"b0c3d9",0,"26388.png"],["MP7","Base-2","Minimal Wear",8.94,"5e98d9",0,"27254.png"],["SG 553","Ol' Rusty","Field-Tested",8.13,"4b69ff",1,"11430.png"],["Five-SeveN","Scrawl","Battle-Scarred",8.13,"4b69ff",1,"13129.png"],["G3SG1","Green Apple","Minimal Wear",7.31,"5e98d9",0,"113.png"],["PP-Bizon","Candy Apple","Minimal Wear",7.31,"5e98d9",0,"61.png"],["Galil AR","VariCamo","Minimal Wear",6.5,"5e98d9",0,"91.png"],["Sticker","Vice Cursor",null,6.5,"4b69ff",0,"18546.png"],["MAG-7","Foresight","Battle-Scarred",6.5,"4b69ff",0,"13159.png"],["Tec-9","Army Mesh","Factory New",6.5,"b0c3d9",0,"2.png"],["M4A4","Aeolian Dark","Minimal Wear",4.88,"5e98d9",0,"23192.png"],["Souvenir SSG 08","Prey","Field-Tested",4.88,"b0c3d9",0,"15411.png"],["Sticker","Temperance",null,4.88,"4b69ff",0,"17250.png"],["Souvenir MAG-7","Navy Sheen","Battle-Scarred",4.88,"b0c3d9",0,"12927.png"],["MP5-SD","Savannah Halftone","Battle-Scarred",4.88,"5e98d9",0,"14260.png"],["Tec-9","Tiger Stencil","Minimal Wear",4.88,"5e98d9",0,"14208.png"],["AUG","Sweeper","Factory New",4.06,"b0c3d9",0,"1.png"],["SSG 08","Tiger Tear","Field-Tested",4.06,"5e98d9",0,"76.png"],["P90","Mustard Gas","Field-Tested",4.06,"5e98d9",0,"51.png"],["Tec-9","Garter-9","Field-Tested",4.06,"5e98d9",0,"41.png"],["Galil AR","Grey Smoke","Battle-Scarred",3.25,"b0c3d9",0,"26819.png"],["SCAR-20","Short Ochre","Battle-Scarred",3.25,"b0c3d9",0,"26422.png"],["Sticker","Peekle",null,3.25,"4b69ff",0,"28599.png"],["Nova","Currents","Battle-Scarred",3.25,"b0c3d9",0,"26131.png"],["PP-Bizon","Traitor","Well-Worn",3.25,"5e98d9",0,"28476.png"],["Dual Berettas","Silver Pour","Battle-Scarred",3.25,"b0c3d9",0,"26433.png"]];
+const WEAR={'Factory New':'FN','Minimal Wear':'MW','Field-Tested':'FT','Well-Worn':'WW','Battle-Scarred':'BS'};
+const CAT=w=>{
+  w=w.replace(/^(StatTrak™ |Souvenir )/,'');
+  if(w.startsWith('★'))return /Gloves|Wraps/.test(w)?'gl':'k';
+  if(/^(AWP|SSG 08|SCAR-20|G3SG1)$/.test(w))return 'sn';
+  if(/^(Glock-18|USP-S|P2000|P250|Desert Eagle|Five-SeveN|Tec-9|CZ75-Auto|Dual Berettas|R8 Revolver)$/.test(w))return 'p';
+  if(/^(MP9|MAC-10|MP7|MP5-SD|UMP-45|P90|PP-Bizon)$/.test(w))return 's';
+  if(/^(AK-47|M4A4|M4A1-S|FAMAS|Galil AR|SG 553|AUG)$/.test(w))return 'r';
+  if(/^(Nova|XM1014|MAG-7|Sawed-Off|M249|Negev)$/.test(w))return 'h';
+  if(w==='Sticker')return 'st';
+  return 'o';
+};
+const r2=n=>Math.round(n*100)/100;
+const ITEMS=RAW.map((a,id)=>({id,weapon:(a[5]&&!a[0].startsWith('StatTrak')?'StatTrak™ ':'')+a[0],skin:a[1],wear:WEAR[a[2]]||'',price:a[3],col:'#'+a[4],img:'img/'+a[6],type:CAT(a[0]),base:a[0].replace(/^(StatTrak™ |Souvenir )/,'')}));
+const byPrice=[...ITEMS].sort((a,b)=>a.price-b.price);
+
+const CASES=[
+ {key:'dust',name:'Пыль',desc:'Дешёвый старт. В основном ширпотреб, но иногда выпадает что-то приличное.',color:'#9aa3c7',f:i=>i.price<400},
+ {key:'pistol',name:'Пистолетный',desc:'Только пистолеты: Glock, USP-S, Desert Eagle и компания.',color:'#5e98d9',f:i=>i.type==='p'},
+ {key:'smg',name:'Ближний бой',desc:'Пистолеты-пулемёты и дробовики для ближней дистанции.',color:'#2fe39a',f:i=>i.type==='s'||i.type==='h'},
+ {key:'ak',name:'Калаш',desc:'Только AK-47 — от дешёвых камуфляжей до легенд.',color:'#ff9c2e',f:i=>i.base==='AK-47'},
+ {key:'sniper',name:'Снайпер',desc:'AWP, SSG 08 и автоматические снайперки.',color:'#4f9a3a',f:i=>i.type==='sn'},
+ {key:'rifle',name:'Штурмовой',desc:'M4A4, M4A1-S, FAMAS, Galil, AUG и SG 553.',color:'#8b5cff',f:i=>i.type==='r'&&i.base!=='AK-47'},
+ {key:'mid',name:'Середняк',desc:'Скины от 300 до 8 000: уже не мусор, ещё не ножи.',color:'#7aa2ff',f:i=>i.price>=300&&i.price<=8000&&i.type!=='st'},
+ {key:'prem',name:'Премиум',desc:'Дорогие скины от 3 000 до 80 000, включая ножи и перчатки.',color:'#ff8a3d',f:i=>i.price>=3000&&i.price<=80000&&i.type!=='st'},
+ {key:'knife',name:'Ножевой',desc:'Только ножи. Гарантированный ★ в каждом открытии.',color:'#ffd166',f:i=>i.type==='k'},
+ {key:'gloves',name:'Перчатки',desc:'Только перчатки ★.',color:'#c040ff',f:i=>i.type==='gl'},
+ {key:'stick',name:'Наклейки',desc:'Наклейки с турниров, включая редкие Holo и Foil.',color:'#26c6da',f:i=>i.type==='st'},
+ {key:'high',name:'Хай-роллер',desc:'Ничего дешевле 100 000. Для тех, кто пополнил по-крупному.',color:'#ff3d8b',f:i=>i.price>=100000},
+ {key:'chaos',name:'Хаос',desc:'Весь каталог в одном кейсе. Почти всегда мусор, иногда легенда.',color:'#e43b5b',f:()=>true}
+];
+CASES.forEach(c=>{
+  c.pool=ITEMS.filter(c.f);
+  c.w=c.pool.map(i=>1/i.price);
+  c.tw=c.w.reduce((a,b)=>a+b,0);
+  const ev=c.pool.reduce((a,i,k)=>a+i.price*c.w[k]/c.tw,0);
+  c.price=ev<20?r2(ev/.9):Math.ceil(ev/.9);
+  c.top=c.pool.reduce((a,b)=>b.price>a.price?b:a,c.pool[0]);
+});
+CASES.sort((a,b)=>a.price-b.price);
+for(let k=CASES.length-1;k>=0;k--)if(CASES[k].pool.length<6)CASES.splice(k,1);
+const CBY=Object.fromEntries(CASES.map(c=>[c.key,c]));
+const pick=c=>{let x=Math.random()*c.tw;for(let k=0;k<c.pool.length;k++){x-=c.w[k];if(x<=0)return c.pool[k]}return c.pool[c.pool.length-1]};
+
+/* gradients for cases */
+document.getElementById('defs').innerHTML=CASES.map(c=>`<linearGradient id="cg-${c.key}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.color}"/><stop offset="1" stop-color="#18181c"/></linearGradient>`).join('');
+
+/* ---------- state ---------- */
+const KEY='skinvolt.v2';
+let S={balance:5000,inv:[],uid:1,stats:{opened:0,up:0,upWin:0,best:null},sound:true,tab:'cases'};
+try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&typeof d.balance==='number')S=Object.assign(S,d)}catch(e){}
+S.inv=S.inv.filter(o=>ITEMS[o.id]);
+if(!S.inv.length&&S.stats.opened===0&&S.stats.up===0){
+  [.3,.42,.5].forEach(q=>S.inv.push({u:S.uid++,id:byPrice[Math.floor(byPrice.length*q)].id}));
+}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const addItem=id=>{const o={u:S.uid++,id};S.inv.unshift(o);const b=S.stats.best;if(b==null||ITEMS[id].price>ITEMS[b].price)S.stats.best=id;return o};
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const fmt=n=>Number(n).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const coin=n=>`<span class="c">${fmt(n)}</span>`;
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const gun=(it,cls='gun')=>`<img class="${cls}" src="${it.img}" alt="" loading="lazy" decoding="async" draggable="false">`;
+function card(it,o={}){
+  const col=it.col;
+  return `<div class="it${o.cls?' '+o.cls:''}" style="--rc:${col}" ${o.attr||''} title="${esc(it.weapon+' | '+it.skin+' ('+it.wear+')')}">
+    ${o.badge?`<span class="badge">${o.badge}</span>`:''}<span class="wear">${it.weapon.startsWith('StatTrak')?'<b style="color:#cf6a32">ST</b> ':''}${it.wear}</span>
+    ${gun(it)}<div class="w">${esc(it.weapon)}</div><div class="s">${esc(it.skin)}</div>
+    <div class="p">${coin(it.price)}</div>${o.extra||''}${o.acts||''}</div>`;
+}
+const crate=c=>`<svg class="crate" viewBox="0 0 160 120" aria-hidden="true">
+  <image href="${c.top.img}" x="28" y="-2" width="104" height="66" preserveAspectRatio="xMidYMid meet"/>
+  <path d="M22 52 H138 L130 112 H30 Z" fill="url(#cg-${c.key})" stroke="rgba(255,255,255,.12)"/>
+  <path d="M30 60 H130 M34 84 H126" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+  <path d="M14 40 H146 L140 56 H20 Z" fill="${c.color}" opacity=".95"/>
+  <path d="M14 40 H146 L144 45 H16 Z" fill="rgba(255,255,255,.35)"/>
+  <rect x="68" y="48" width="24" height="18" rx="4" fill="#141417" stroke="${c.color}" stroke-width="1.5"/>
+  <circle cx="80" cy="57" r="3" fill="${c.color}"/></svg>`;
+function toast(msg,color){const t=document.createElement('div');t.className='toast';if(color)t.style.setProperty('--tc',color);t.innerHTML=msg;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),3200)}
+const invValue=()=>S.inv.reduce((a,o)=>a+ITEMS[o.id].price,0);
+function updHeader(){
+  $('#balance').textContent=fmt(S.balance);
+  $('#invCount').textContent=S.inv.length?`· ${S.inv.length}`:'';
+  const ho=$('#hOpened');if(ho){ho.textContent=S.stats.opened.toLocaleString('ru-RU');$('#hUps').textContent=S.stats.up.toLocaleString('ru-RU')}
+  $('#musicBtn').setAttribute('aria-pressed',!!S.music);
+  $('#musicBtn').innerHTML=S.music?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M3 3l18 18"/></svg>';
+  $('#soundBtn').innerHTML=S.sound
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>'
+    :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+  save();
+}
+function sell(u){const k=S.inv.findIndex(o=>o.u===u);if(k<0)return 0;const p=ITEMS[S.inv[k].id].price;S.inv.splice(k,1);S.balance=r2(S.balance+p);upSel.delete(u);return p}
+
+/* ---------- sound ---------- */
+let AC;
+function tone(f,d,type='square',v=.03){
+  if(!S.sound)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;
+    o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d);
+  }catch(e){}
+}
+const tick=()=>tone(2100,.025,'square',.018);
+const winS=()=>[660,880,1320].forEach((f,i)=>setTimeout(()=>tone(f,.22,'triangle',.07),i*90));
+const loseS=()=>{tone(240,.4,'sawtooth',.04);setTimeout(()=>tone(160,.5,'sawtooth',.04),150)};
+
+/* ---------- live feed ---------- */
+const BOTS=['kirill_ez','s1mple_fan','dimon228','ZeuS_jr','Lexa','nastya.cs','tw1xx','bodya','m0nesy_2','vlad_awp','Хомяк','sanya','Kenji','frozen','Pashka'];
+function feedPush(id,who,me){
+  const it=ITEMS[id],f=$('#feed'),d=document.createElement('div');
+  d.className='fd in'+(me?' me':'');d.style.setProperty('--rc',it.col);
+  d.title=`${who}: ${it.weapon} | ${it.skin}`;
+  d.innerHTML=gun(it,'')+`<span><b>${esc(it.skin)}</b> · ${esc(who)}</span>`;
+  f.children[0].after(d);
+  while(f.children.length>26)f.lastChild.remove();
+}
+for(let k=0;k<18;k++){const c=CASES[Math.random()*CASES.length|0];feedPush(pick(c).id,BOTS[Math.random()*BOTS.length|0])}
+[...$('#feed').querySelectorAll('.fd')].forEach(e=>e.classList.remove('in'));
+(function bot(){setTimeout(()=>{const c=CASES[Math.random()*CASES.length|0];feedPush(pick(c).id,BOTS[Math.random()*BOTS.length|0]);bot()},2200+Math.random()*3500)})();
+
+/* ---------- views ---------- */
+const view=$('#view');
+let openKey=null, openCount=1, fast=false, caseBusy=false, lastDrop=[];
+let upSel=new Set(), upBal=0, upTarget=null, upBusy=false, upAngle=0, upLimit=60, upQ='', upMin='', upOnlyAbove=true, invSort='desc';
+
+function go(tab){
+  if(tab!=='cases'||(S.tab==='cases'&&!caseBusy))openKey=null;
+  S.tab=tab;
+  document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab));
+  render();save();window.scrollTo({top:0});
+}
+function render(){
+  if(S.tab==='cases')openKey?renderCase():renderCases();
+  else if(S.tab==='upgrade')renderUpgrade();
+  else renderInv();
+  updHeader();
+}
+
+function renderCases(){
+  const b=S.stats.best;
+  view.innerHTML=`<h1 class="view-title">Кейсы</h1>
+  <p class="view-sub">Открывайте кейсы на бесплатные монеты. Шансы честные: у каждого предмета указан процент выпадения.</p>
+  <dl class="stats">
+    <div class="stat"><dt>Открыто кейсов</dt><dd class="num">${S.stats.opened}</dd></div>
+    <div class="stat"><dt>Апгрейдов</dt><dd class="num">${S.stats.up} <small style="color:var(--muted);font-size:12px">/ ${S.stats.upWin} побед</small></dd></div>
+    <div class="stat"><dt>Инвентарь</dt><dd>${coin(invValue())}</dd></div>
+    <div class="stat"><dt>Лучший дроп</dt><dd style="font-size:14px">${b==null?'<span style="color:var(--dim)">пока нет</span>':`<span style="color:${ITEMS[b].col}">${esc(ITEMS[b].weapon)} | ${esc(ITEMS[b].skin)}</span>`}</dd></div>
+  </dl>
+  <div class="cases">${CASES.map(c=>`<button class="case" style="--cc:${c.color}" data-case="${c.key}">
+    ${crate(c)}<h3>${c.name}</h3><p>${c.pool.length} предметов</p><span class="price">${coin(c.price)}</span></button>`).join('')}</div>`;
+}
+
+function reelStrip(c,winId,n=58,wi=50){
+  const a=[];for(let k=0;k<n;k++)a.push(k===wi?ITEMS[winId]:pick(c));
+  return `<div class="track">${a.map(it=>card(it)).join('')}</div><div class="mark"></div>`;
+}
+function renderCase(){
+  const c=CBY[openKey];
+  const sorted=c.pool.map((it,k)=>({it,p:c.w[k]/c.tw})).sort((a,b)=>b.it.price-a.it.price);
+  view.innerHTML=`<button class="back" data-act="back">← Все кейсы</button>
+  <div class="case-head" style="--cc:${c.color}">${crate(c)}<div><h1>${c.name}</h1><p>${c.desc}</p></div></div>
+  <div class="reels" id="reels"></div>
+  <div class="open-ctrl">
+    <div class="seg" role="group" aria-label="Количество">${[1,2,3,4,5].map(n=>`<button data-count="${n}" aria-pressed="${n===openCount}">×${n}</button>`).join('')}</div>
+    <label class="toggle"><input type="checkbox" id="fast" ${fast?'checked':''}> Быстрое открытие</label>
+    <button class="btn btn-hot" id="openBtn" data-act="open">Открыть за ${coin(c.price*openCount)}</button>
+  </div>
+  <div id="results"></div>
+  <h2 class="sec">Содержимое кейса <small>${c.pool.length} предметов · шанс выпадения</small></h2>
+  <div class="grid">${sorted.map(({it,p})=>card(it,{extra:`<div class="chance">${p*100<.01?'<0,01':(p*100).toLocaleString('ru-RU',{maximumFractionDigits:p<.01?3:2})}%</div>`})).join('')}</div>`;
+  idleReels();
+}
+function idleReels(){
+  const c=CBY[openKey],box=$('#reels');if(!box)return;
+  box.innerHTML=Array.from({length:openCount},()=>`<div class="reel${openCount>2?' sm':''}">${reelStrip(c,pick(c).id,14,0)}</div>`).join('');
+  box.querySelectorAll('.reel').forEach(r=>{const t=r.querySelector('.track'),cd=t.children[0],st=cd.offsetWidth+8;
+    t.style.transform=`translate3d(${r.clientWidth/2-6*st-cd.offsetWidth/2}px,0,0)`});
+}
+function spinReel(reel,wi,dur,withTick){
+  return new Promise(res=>{
+    const t=reel.querySelector('.track'),cd=t.children[0],cw=cd.offsetWidth,st=cw+8,W=reel.clientWidth;
+    const off=(Math.random()-.5)*cw*.8,start=W/2-3*st-cw/2,end=W/2-(wi*st+cw/2+off);
+    const t0=performance.now();let last=null;
+    t.style.transform=`translate3d(${start}px,0,0)`;
+    function f(now){
+      const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,4.5),x=start+(end-start)*e;
+      t.style.transform=`translate3d(${x}px,0,0)`;
+      if(withTick){const idx=Math.floor((W/2-x)/st);if(last!==null&&idx!==last)tick();last=idx}
+      if(p<1)requestAnimationFrame(f);else{t.children[wi].classList.add('won');res()}
+    }
+    requestAnimationFrame(f);
+  });
+}
+async function openCase(){
+  if(caseBusy)return;
+  const c=CBY[openKey],cost=r2(c.price*openCount);
+  if(S.balance<cost){toast('Не хватает монет. Пополните баланс — это бесплатно.','var(--lose)');openModal();return}
+  caseBusy=true;S.balance=r2(S.balance-cost);updHeader();
+  $('#openBtn').disabled=true;$('#results').innerHTML='';
+  const wins=Array.from({length:openCount},()=>pick(c).id),WI=50;
+  const box=$('#reels');
+  box.innerHTML=wins.map(id=>`<div class="reel${openCount>2?' sm':''}">${reelStrip(c,id,58,WI)}</div>`).join('');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const base=reduce?300:fast?1600:6200;
+  await Promise.all([...box.querySelectorAll('.reel')].map((r,k)=>spinReel(r,WI,base+k*(fast?80:220),k===0)));
+  const best=Math.max(...wins.map(id=>ITEMS[id].price));
+  best>=c.price?winS():tone(520,.2,'triangle',.05);
+  lastDrop=wins.map(id=>addItem(id).u);
+  S.stats.opened+=openCount;
+  wins.forEach(id=>feedPush(id,'вы',true));
+  caseBusy=false;updHeader();
+  if(S.tab==='cases'&&openKey===c.key){$('#openBtn').disabled=false;showResults()}
+  setTimeout(()=>reveal(lastDrop.map(u=>S.inv.find(o=>o.u===u)),openCount>1?'Ваш <b>дроп</b>':'Вам <b>выпало</b>'),350);
+}
+function showResults(){
+  const el=$('#results');if(!el)return;
+  const live=lastDrop.filter(u=>S.inv.some(o=>o.u===u));
+  if(!live.length){el.innerHTML='';return}
+  const sum=live.reduce((a,u)=>a+ITEMS[S.inv.find(o=>o.u===u).id].price,0);
+  el.innerHTML=`<div class="results"><div class="results-top"><h3>Ваш дроп</h3>
+    <button class="btn btn-ghost btn-sm" data-act="tinv">В инвентарь</button>
+    <button class="btn btn-hot btn-sm" data-act="sellDrop">Продать всё за ${coin(sum)}</button></div>
+    <div class="grid">${live.map(u=>{const o=S.inv.find(x=>x.u===u);return card(ITEMS[o.id],{acts:`<div class="acts"><button class="btn btn-ghost" data-sell="${u}">Продать</button><button class="btn btn-ghost" data-toup="${u}">Апгрейд</button></div>`})}).join('')}</div></div>`;
+}
+
+/* upgrade */
+const stakeVal=()=>r2([...upSel].reduce((a,u)=>{const o=S.inv.find(x=>x.u===u);return a+(o?ITEMS[o.id].price:0)},0)+upBal);
+function chanceOf(target,inp){if(!target||inp<=0||target.price<=inp)return 0;return Math.min(.75,inp/target.price*.95)}
+function renderUpgrade(){
+  [...upSel].forEach(u=>{if(!S.inv.some(o=>o.u===u))upSel.delete(u)});
+  view.innerHTML=`<h1 class="view-title">Апгрейд</h1>
+  <p class="view-sub">Поставьте предметы и/или монеты, выберите предмет дороже — стрелка решит. Шанс = ставка ÷ цена цели × 0,95, максимум 75%.</p>
+  <div class="up-stage">
+    <section class="slot"><h3>Ваша ставка <span id="stakeSum"></span></h3>
+      <div class="slot-body" id="stake"></div>
+      <div class="bal-row"><label for="upBal">Добавить монеты с баланса</label>
+        <input class="inp" id="upBal" type="number" min="0" step="0.01" inputmode="decimal" value="${upBal||''}" placeholder="0,00">
+        <button class="btn btn-ghost btn-sm" data-bal="half">½</button><button class="btn btn-ghost btn-sm" data-bal="max">Макс</button><button class="btn btn-ghost btn-sm" data-bal="0">×</button>
+      </div>
+    </section>
+    <section class="wheel-box">
+      <div class="wheel" id="wheel">
+        <svg viewBox="0 0 280 280" aria-hidden="true">
+          <defs><linearGradient id="arcG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset=".55" stop-color="#ff9a1f"/><stop offset="1" stop-color="#ff3b30"/></linearGradient><radialGradient id="hubG"><stop offset="0" stop-color="#1d1d22"/><stop offset="1" stop-color="#111114"/></radialGradient></defs>
+          <circle cx="140" cy="140" r="128" fill="none" stroke="#2c2c33" stroke-width="2" stroke-dasharray="2 8"/>
+          <circle cx="140" cy="140" r="112" fill="none" stroke="#1f1f24" stroke-width="22"/>
+          <circle class="arc" id="arc" cx="140" cy="140" r="112" fill="none" stroke="url(#arcG)" stroke-width="22" stroke-dasharray="0 704" transform="rotate(-90 140 140)"/>
+          <circle cx="140" cy="140" r="92" fill="url(#hubG)" stroke="#2a2a31"/>
+          <g id="ptr" transform="rotate(0 140 140)"><path d="M140 10 L149 36 L140 31 L131 36 Z" fill="#fff"/><line x1="140" y1="31" x2="140" y2="46" stroke="#fff" stroke-width="2"/></g>
+        </svg>
+        <div class="wheel-mid"><svg class="chev" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 4 15h7l5-5 5 5h7z" fill="#f8d34a"/><path d="M16 14 4 26h7l5-5 5 5h7z" fill="#f8d34a" opacity=".6"/></svg><div class="pct num" id="pct">0%</div><div class="lbl" id="plbl">шанс</div><div class="roll" id="roll"></div></div>
+      </div>
+      <div class="mults" id="mults">${[1.5,2,3,5,10,20].map(m=>`<button data-mult="${m}">×${String(m).replace('.',',')}</button>`).join('')}</div>
+      <button class="btn btn-hot" id="upBtn" data-act="upgrade">Улучшить</button>
+    </section>
+    <section class="slot"><h3>Цель <span id="tgtX"></span></h3><div class="slot-body target" id="target"></div></section>
+  </div>
+  <div class="up-lists">
+    <section class="panel"><div class="panel-hd"><h3>Мой инвентарь</h3><span style="color:var(--muted);font-size:12px">нажмите, чтобы поставить</span></div><div class="grid" id="upInv"></div></section>
+    <section class="panel"><div class="panel-hd"><h3>Прокачать до</h3></div>
+      <div class="filters">
+        <input class="inp" id="upQ" placeholder="Поиск: AWP, Fade…" value="${esc(upQ)}">
+        <input class="inp" id="upMin" type="number" min="0" placeholder="Цена от" value="${upMin}">
+        <label class="toggle"><input type="checkbox" id="upAbove" ${upOnlyAbove?'checked':''}> Дороже ставки</label>
+      </div>
+      <div class="grid" id="upTargets"></div></section>
+  </div>`;
+  updUp();
+}
+function updUp(){
+  if(!$('#stake'))return;
+  const inp=stakeVal(),t=upTarget!=null?ITEMS[upTarget]:null,ch=chanceOf(t,inp);
+  $('#stakeSum').innerHTML=inp>0?coin(inp):'';
+  const sel=[...upSel].map(u=>S.inv.find(o=>o.u===u)).filter(Boolean);
+  $('#stake').innerHTML=sel.length||upBal>0
+    ?`<div class="stake">${sel.map(o=>card(ITEMS[o.id],{cls:'pick',attr:`data-unsel="${o.u}"`})).join('')}${upBal>0?`<div class="it" style="--rc:var(--coin);display:grid;place-items:center;text-align:center"><div><div class="s" style="font-size:11px">Монеты</div><div class="p" style="font-size:12px">${coin(upBal)}</div></div></div>`:''}</div>`
+    :`<div class="empty"><svg viewBox="0 0 120 60"><path d="${SHAPES.r}" fill="currentColor"/></svg>Выберите предметы из инвентаря ниже и/или добавьте монеты</div>`;
+  $('#target').innerHTML=t?card(t):`<div class="empty"><svg viewBox="0 0 120 60"><path d="${SHAPES.sn}" fill="currentColor"/></svg>Выберите предмет, до которого хотите прокачаться</div>`;
+  $('#tgtX').innerHTML=t&&inp>0?`<span class="num" style="color:var(--fg)">×${(t.price/inp).toLocaleString('ru-RU',{maximumFractionDigits:2})}</span>`:'';
+  if(!upBusy){
+    $('#arc').setAttribute('stroke-dasharray',`${(ch*703.7).toFixed(1)} 704`);
+    const w=$('#wheel');w.classList.remove('win','lose');
+    $('#pct').textContent=(ch*100).toLocaleString('ru-RU',{maximumFractionDigits:2})+'%';
+    $('#plbl').textContent=t&&inp>0&&t.price<=inp?'цель дешевле ставки':'шанс';
+    $('#roll').textContent='';
+  }
+  $('#upBtn').disabled=upBusy||ch<=0||ch<.001;
+  $('#upInv').innerHTML=S.inv.length?[...S.inv].sort((a,b)=>ITEMS[b.id].price-ITEMS[a.id].price).map(o=>card(ITEMS[o.id],{cls:'pick'+(upSel.has(o.u)?' sel':''),attr:`data-tog="${o.u}"`,badge:upSel.has(o.u)?'✓':''})).join('')
+    :`<div class="empty" style="grid-column:1/-1;padding:30px 0">Инвентарь пуст. Откройте кейс или поставьте монеты с баланса.</div>`;
+  updTargets();
+}
+function updTargets(){
+  const el=$('#upTargets');if(!el)return;
+  const inp=stakeVal(),q=upQ.trim().toLowerCase(),mn=parseFloat(upMin)||0;
+  let list=ITEMS.filter(i=>i.price>=mn&&(!upOnlyAbove||inp<=0||i.price>inp)&&(!q||(i.weapon+' '+i.skin).toLowerCase().includes(q)));
+  list.sort((a,b)=>a.price-b.price);
+  const shown=list.slice(0,upLimit);
+  el.innerHTML=shown.map(i=>{const ch=chanceOf(i,inp);return card(i,{cls:'pick'+(i.id===upTarget?' sel':''),attr:`data-tgt="${i.id}"`,badge:inp>0&&ch>0?(ch*100).toLocaleString('ru-RU',{maximumFractionDigits:ch<.01?2:1})+'%':''})}).join('')
+    +(list.length>upLimit?`<button class="btn btn-ghost more" style="grid-column:1/-1" data-act="more">Показать ещё (${list.length-upLimit})</button>`:'')
+    +(list.length?'':`<div class="empty" style="grid-column:1/-1;padding:30px 0">Ничего не найдено</div>`);
+}
+function setMult(m){
+  const inp=stakeVal();if(inp<=0){toast('Сначала поставьте предметы или монеты');return}
+  const goal=inp*m;let best=null;
+  ITEMS.forEach(i=>{if(i.price>inp&&(best==null||Math.abs(i.price-goal)<Math.abs(best.price-goal)))best=i});
+  if(best){upTarget=best.id;updUp()}
+}
+function doUpgrade(){
+  if(upBusy)return;
+  const inp=stakeVal(),t=ITEMS[upTarget],ch=chanceOf(t,inp);
+  if(!t||ch<=0)return;
+  if(upBal>S.balance){toast('На балансе меньше монет, чем в ставке','var(--lose)');return}
+  [...upSel].forEach(u=>{const k=S.inv.findIndex(o=>o.u===u);if(k>=0)S.inv.splice(k,1)});
+  S.balance=r2(S.balance-upBal);
+  const roll=Math.random(),win=roll<ch;
+  upBusy=true;upSel.clear();upBal=0;S.stats.up++;if(win)S.stats.upWin++;
+  updHeader();
+  const inEl=$('#upBal');if(inEl)inEl.value='';
+  $('#upBtn').disabled=true;
+  const ptr=$('#ptr'),from=upAngle%360,to=from+360*6+(roll*360-from+360)%360;
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,dur=reduce?300:5200,t0=performance.now();
+  let lastSeg=null;
+  const finish=()=>{
+    upAngle=to;upBusy=false;
+    if(win){const o=addItem(t.id);feedPush(t.id,'вы',true);setTimeout(()=>reveal([o],'Апгрейд <b>успешен</b>'),700)}
+    else{loseS()}
+    updHeader();
+    if(!$('#wheel')){return}
+    const w=$('#wheel');w.classList.add(win?'win':'lose');
+    $('#pct').textContent=win?'ПОБЕДА':'МИМО';$('#pct').style.fontSize='30px';
+    $('#plbl').textContent=`шанс был ${(ch*100).toLocaleString('ru-RU',{maximumFractionDigits:2})}%`;
+    $('#roll').textContent=`выпало ${(roll*100).toFixed(2)} ${win?'<':'≥'} ${(ch*100).toFixed(2)}`;
+    const keepT=upTarget;
+    const inv=$('#upInv');
+    setTimeout(()=>{if(!upBusy&&$('#pct')){$('#pct').style.fontSize='';upTarget=keepT;updUp()}},2600);
+    if(inv){const tmp=upBusy;upBusy=true;updUpLists();upBusy=tmp}
+  };
+  (function f(now){
+    const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,4),a=from+(to-from)*e;
+    ptr.setAttribute('transform',`rotate(${a.toFixed(2)} 140 140)`);
+    const seg=Math.floor(a/12);if(lastSeg!==null&&seg!==lastSeg)tick();lastSeg=seg;
+    if(p<1)requestAnimationFrame(f);else finish();
+  })(t0);
+  updUpLists();
+}
+function updUpLists(){
+  // refresh lists + stake without touching wheel text
+  const busy=upBusy;upBusy=true;updUp();upBusy=busy;
+}
+
+/* inventory */
+function renderInv(){
+  const list=[...S.inv].sort((a,b)=>invSort==='desc'?ITEMS[b.id].price-ITEMS[a.id].price:invSort==='asc'?ITEMS[a.id].price-ITEMS[b.id].price:b.u-a.u);
+  view.innerHTML=`<h1 class="view-title">Инвентарь</h1>
+  <p class="view-sub">Всё, что выпало из кейсов и апгрейдов. Продажа возвращает полную цену на баланс.</p>
+  <div class="inv-bar">
+    <div class="stat"><dt>Предметов</dt><dd class="num">${S.inv.length}</dd></div>
+    <div class="stat"><dt>Стоимость</dt><dd>${coin(invValue())}</dd></div>
+    <div class="sp">
+      <select class="inp" id="invSort" aria-label="Сортировка"><option value="desc">Сначала дорогие</option><option value="asc">Сначала дешёвые</option><option value="new">Сначала новые</option></select>
+      <button class="btn btn-hot btn-sm" data-act="sellAll" ${S.inv.length?'':'disabled'}>Продать всё</button>
+    </div>
+  </div>
+  ${S.inv.length?`<div class="grid">${list.map(o=>card(ITEMS[o.id],{acts:`<div class="acts"><button class="btn btn-ghost" data-sell="${o.u}">Продать</button><button class="btn btn-ghost" data-toup="${o.u}">Апгрейд</button></div>`})).join('')}</div>`
+  :`<div class="panel" style="text-align:center;padding:50px 16px"><div class="empty" style="margin:0 auto">Здесь пока пусто.<button class="btn btn-hot" data-act="tcases">Открыть кейс</button></div></div>`}`;
+  $('#invSort').value=invSort;
+}
+
+/* ---------- modal ---------- */
+const PRESETS=[500,1000,5000,10000,50000,100000,250000,1000000,5000000];
+$('#presets').innerHTML=PRESETS.map(v=>`<button class="c" data-add="${v}">${v.toLocaleString('ru-RU')}</button>`).join('');
+function openModal(){$('#modal').hidden=false;$('#resetZone').innerHTML='<button class="link-danger" type="button" data-act="reset1">Сбросить прогресс</button>';setTimeout(()=>$('#topAmount').focus(),30)}
+function closeModal(){$('#modal').hidden=true}
+function credit(v){v=r2(v);if(!(v>0))return;S.balance=r2(S.balance+v);updHeader();toast(`Начислено ${coin(v)}`,'var(--win)');if(S.tab==='upgrade'&&!upBusy)updUp()}
+$('#topForm').addEventListener('submit',e=>{e.preventDefault();const v=parseFloat($('#topAmount').value);if(!(v>0)){toast('Введите сумму больше нуля','var(--lose)');return}credit(Math.min(v,1e7));$('#topAmount').value='';closeModal()});
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeModal()});
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-tab],[data-case],[data-act],[data-count],[data-sell],[data-toup],[data-tog],[data-unsel],[data-tgt],[data-mult],[data-bal],[data-add]');
+  if(!t)return;
+  const d=t.dataset;
+  if(d.tab){go(d.tab);return}
+  if(d.case){openKey=d.case;lastDrop=[];render();window.scrollTo({top:0});return}
+  if(d.count){if(caseBusy)return;openCount=+d.count;renderCase();return}
+  if(d.add){credit(+d.add);closeModal();return}
+  if(d.sell){const p=sell(+d.sell);if(p){toast(`Продано за ${coin(p)}`);updHeader();if(S.tab==='inventory')renderInv();else showResults()}return}
+  if(d.toup){const u=+d.toup;upSel=new Set([u]);go('upgrade');return}
+  if(d.tog){if(upBusy)return;const u=+d.tog;upSel.has(u)?upSel.delete(u):upSel.add(u);updUp();return}
+  if(d.unsel){if(upBusy)return;upSel.delete(+d.unsel);updUp();return}
+  if(d.tgt){if(upBusy)return;upTarget=+d.tgt;updUp();return}
+  if(d.mult){if(upBusy)return;setMult(+d.mult);return}
+  if(d.bal){if(upBusy)return;const v=d.bal==='max'?S.balance:d.bal==='half'?r2(S.balance/2):0;upBal=r2(v);$('#upBal').value=upBal||'';updUp();return}
+  switch(d.act){
+    case 'topup':openModal();break;
+    case 'close':closeModal();break;
+    case 'back':if(!caseBusy){openKey=null;render()}break;
+    case 'open':openCase();break;
+    case 'tinv':go('inventory');break;
+    case 'tcases':go('cases');break;
+    case 'sellDrop':{let s=0;lastDrop.forEach(u=>s+=sell(u));lastDrop=[];if(s)toast(`Продано за ${coin(s)}`);updHeader();showResults();break}
+    case 'sellAll':{const s=r2(invValue());S.balance=r2(S.balance+s);S.inv=[];upSel.clear();toast(`Продано всё за ${coin(s)}`);updHeader();renderInv();break}
+    case 'upgrade':doUpgrade();break;
+    case 'more':upLimit+=60;updTargets();break;
+    case 'reset1':$('#resetZone').innerHTML='<span style="font-size:13px;color:var(--muted)">Удалить баланс и инвентарь?</span> <button class="link-danger" type="button" data-act="reset2">Да, сбросить</button>';break;
+    case 'reset2':S={balance:5000,inv:[],uid:1,stats:{opened:0,up:0,upWin:0,best:null},sound:S.sound,tab:'cases'};upSel.clear();upBal=0;upTarget=null;openKey=null;lastDrop=[];closeModal();go('cases');toast('Прогресс сброшен, баланс 5 000');break;
+  }
+});
+document.addEventListener('input',e=>{
+  const id=e.target.id;
+  if(id==='upBal'){let v=parseFloat(e.target.value)||0;if(v>S.balance){v=S.balance;e.target.value=v}upBal=Math.max(0,r2(v));if(!upBusy)updUp()}
+  else if(id==='upQ'){upQ=e.target.value;upLimit=60;updTargets()}
+  else if(id==='upMin'){upMin=e.target.value;upLimit=60;updTargets()}
+});
+document.addEventListener('change',e=>{
+  const id=e.target.id;
+  if(id==='fast')fast=e.target.checked;
+  else if(id==='upAbove'){upOnlyAbove=e.target.checked;updTargets()}
+  else if(id==='invSort'){invSort=e.target.value;renderInv()}
+});
+$('#soundBtn').addEventListener('click',()=>{S.sound=!S.sound;updHeader();if(S.sound)tick()});
+let rzT;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(S.tab==='cases'&&openKey&&!caseBusy&&!$('#reels .won'))idleReels()},150)});
+
+/* ---------- music: synthesized loop, Am–F–C–G at 112 bpm ---------- */
+const Music={on:false,step:0,next:0,timer:null,g:null,noise:null,loop:0,
+  init(){
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(this.g)return;
+    const comp=AC.createDynamicsCompressor();this.g=AC.createGain();this.g.gain.value=0;this.g.connect(comp).connect(AC.destination);
+    const b=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;this.noise=b;
+  },
+  start(){
+    try{this.init()}catch(e){return}
+    if(AC.state==='suspended')AC.resume();
+    if(this.on)return;this.on=true;
+    this.g.gain.cancelScheduledValues(AC.currentTime);this.g.gain.setTargetAtTime(.42,AC.currentTime,.5);
+    this.next=AC.currentTime+.08;this.timer=setInterval(()=>this.sched(),25);
+  },
+  stop(){if(!this.on)return;this.on=false;clearInterval(this.timer);this.g.gain.setTargetAtTime(0,AC.currentTime,.25)},
+  duck(){if(!this.on)return;const t=AC.currentTime;this.g.gain.cancelScheduledValues(t);this.g.gain.setTargetAtTime(.12,t,.05);this.g.gain.setTargetAtTime(.42,t+1.6,.6)},
+  sched(){const sp=60/112/4;while(this.next<AC.currentTime+.12){this.play(this.step,this.next,sp);this.next+=sp;this.step=(this.step+1)%64;if(!this.step)this.loop++}},
+  play(st,t,sp){
+    const CH=[[57,60,64],[53,57,60],[48,52,55],[55,59,62]],ch=CH[st>>4],s=st&15,f=m=>440*Math.pow(2,(m-69)/12);
+    if(s%4===0)this.kick(t);
+    if(s%4===2)this.hat(t,.5);else if(s%2)this.hat(t,.16);
+    if(s===4||s===12)this.clap(t);
+    if(s%2===0)this.osc('sawtooth',f(ch[0]-24),t,.16,sp*1.8,420);
+    if(s===0)ch.forEach(m=>this.pad(f(m),t,sp*16));
+    if(this.loop%2||s>=8){const ap=[0,1,2,1];this.osc('triangle',f(ch[ap[s%4]]+12+(s>=8?12:0)),t,.05,.14,3200)}
+  },
+  osc(type,fr,t,v,d,cut){const o=AC.createOscillator(),g=AC.createGain(),fl=AC.createBiquadFilter();o.type=type;o.frequency.value=fr;fl.type='lowpass';fl.frequency.value=cut;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(fl).connect(g).connect(this.g);o.start(t);o.stop(t+d+.02)},
+  pad(fr,t,d){[-7,7].forEach(dt=>{const o=AC.createOscillator(),g=AC.createGain(),fl=AC.createBiquadFilter();o.type='sawtooth';o.frequency.value=fr;o.detune.value=dt;fl.type='lowpass';fl.frequency.value=850;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.03,t+.6);g.gain.setValueAtTime(.03,t+d-.4);g.gain.linearRampToValueAtTime(0,t+d);o.connect(fl).connect(g).connect(this.g);o.start(t);o.stop(t+d+.05)})},
+  kick(t){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(.5,t);g.gain.exponentialRampToValueAtTime(.001,t+.35);o.connect(g).connect(this.g);o.start(t);o.stop(t+.4)},
+  nz(t,type,fr,v,d){const n=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();n.buffer=this.noise;fl.type=type;fl.frequency.value=fr;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);n.connect(fl).connect(g).connect(this.g);n.start(t);n.stop(t+d+.01)},
+  hat(t,v){this.nz(t,'highpass',7000,v*.22,.05)},
+  clap(t){this.nz(t,'bandpass',1600,.22,.16)}
+};
+if(S.music===undefined)S.music=true;
+addEventListener('pointerdown',()=>{if(S.music&&!Music.on)Music.start()},{once:true});
+$('#musicBtn').addEventListener('click',()=>{S.music=!S.music;S.music?Music.start():Music.stop();updHeader()});
+
+/* ---------- drop reveal ---------- */
+let rvUids=[];
+function dropS(price){
+  if(!S.sound)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const t=AC.currentTime,n=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();
+    if(!Music.noise)Music.init();
+    n.buffer=Music.noise;fl.type='bandpass';fl.frequency.setValueAtTime(300,t);fl.frequency.exponentialRampToValueAtTime(5000,t+.35);
+    g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.45);n.connect(fl).connect(g).connect(AC.destination);n.start(t);n.stop(t+.5);
+  }catch(e){}
+  const notes=price>=50000?[523,659,784,1047,1319,1568]:price>=2000?[523,659,784,1047]:[523,659,784];
+  notes.forEach((f,i)=>setTimeout(()=>tone(f,.35,'triangle',.07),160+i*85));
+}
+function reveal(objs,title){
+  objs=objs.filter(Boolean);if(!objs.length)return;
+  const el=$('#reveal'),best=objs.reduce((a,o)=>ITEMS[o.id].price>ITEMS[a.id].price?o:a),bc=ITEMS[best.id].col;
+  const sum=objs.reduce((a,o)=>a+ITEMS[o.id].price,0);
+  let sp='';
+  for(let k=0;k<40;k++){const a=Math.random()*Math.PI*2,r=160+Math.random()*320;
+    sp+=`<i class="spark" style="--sc:${[bc,'#f8d34a','#fff'][k%3]};--x:${(Math.cos(a)*r).toFixed(0)}px;--y:${(Math.sin(a)*r).toFixed(0)}px;--r:${(Math.random()*720)|0}deg;--sd:${(Math.random()*.25).toFixed(2)}s"></i>`}
+  el.innerHTML=`<div class="flash" style="--fc:${bc}"></div>${sp}<div class="rv-box"><div class="rv-title">${title}</div>
+    <div class="rv-items${objs.length>2?' many':''}">${objs.map((o,k)=>{const it=ITEMS[o.id];return `<div class="rv-card" style="--rc:${it.col};--d:${(k*.14).toFixed(2)}s"><div class="rv-rays"></div>${it.wear?`<span class="rar">${it.weapon.startsWith('StatTrak')?'ST ':''}${it.wear}</span>`:''}<img src="${it.img}" alt=""><div class="w">${esc(it.weapon)}</div><div class="s">${esc(it.skin)}</div><div class="p">${coin(it.price)}</div></div>`}).join('')}</div>
+    <div class="rv-acts"><button class="btn btn-ghost" data-act="rvSell">Продать за ${coin(sum)}</button><button class="btn btn-hot" data-act="rvKeep">Забрать</button></div></div>`;
+  rvUids=objs.map(o=>o.u);el.hidden=false;Music.duck();dropS(ITEMS[best.id].price);
+}
+function closeReveal(){$('#reveal').hidden=true;$('#reveal').innerHTML='';rvUids=[]}
+$('#reveal').addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');
+  if(a&&a.dataset.act==='rvSell'){e.stopPropagation();let s=0;rvUids.forEach(u=>s+=sell(u));if(s)toast(`Продано за ${coin(s)}`);closeReveal();updHeader();
+    if(S.tab==='cases')showResults();else if(S.tab==='upgrade'&&!upBusy)updUp();else if(S.tab==='inventory')renderInv();return}
+  if((a&&a.dataset.act==='rvKeep')||e.target.id==='reveal'){e.stopPropagation();closeReveal()}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#reveal').hidden)closeReveal()});
+
+/* header counters */
+let online=4600+Math.random()*600|0;
+setInterval(()=>{online=Math.max(3800,online+((Math.random()*41|0)-20));const o=$('#hOnline');if(o)o.textContent=online.toLocaleString('ru-RU')},3000);
+
+go(['cases','upgrade','inventory'].includes(S.tab)?S.tab:'cases');
+</script>
