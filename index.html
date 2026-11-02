@@ -338,6 +338,64 @@ main.wrap{max-width:1240px;width:100%}
   .fd img{height:40px}
   .fd.in{animation:feedIn .45s cubic-bezier(.2,.8,.2,1)}
 }
+/* accounts + buy */
+.mini-add{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:13px;background:rgba(248,211,74,.12);color:var(--accent);border:1px solid rgba(248,211,74,.35);margin-right:4px;transition:transform .12s,background .12s}
+.mini-add:hover{background:rgba(248,211,74,.25)}
+.mini-add:active{transform:scale(.88)}
+.user{position:relative}
+.user-btn{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-weight:700;max-width:170px}
+.user-btn:hover{border-color:var(--accent)}
+.ava{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--accent);color:var(--ink);font-weight:900;flex:none}
+.uname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.umenu{position:absolute;right:0;top:calc(100% + 6px);min-width:210px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 20px 50px -14px #000;z-index:70;display:flex;flex-direction:column}
+.umenu .um-hd{padding:8px 10px 10px;font-weight:800;display:flex;flex-direction:column;gap:2px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.umenu .um-hd small{font-weight:600;color:var(--muted)}
+.umenu button{text-align:left;padding:9px 10px;border-radius:8px;font-weight:600}
+.umenu button:hover{background:#2a2a31}
+.umenu .danger{color:var(--lose)}
+.dlg.pay{width:min(520px,100%)}
+.pay-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.pay-hd h2{margin:0}
+.demo{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:5px;background:rgba(248,211,74,.14);color:var(--accent)}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:4px 0 8px}
+.presets button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+#topAmount{width:100%;margin-bottom:14px;font-family:var(--f-mono)}
+.methods{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+.meth{display:flex;align-items:center;gap:10px;text-align:left;padding:10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
+.meth svg{width:24px;height:24px;flex:none;color:var(--muted)}
+.meth b{display:block;font-size:13px}
+.meth small{display:block;font-size:11px;color:var(--muted)}
+.meth:hover{border-color:#3a3a42}
+.meth.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.meth.on svg{color:var(--accent)}
+.pay-sum{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);margin-bottom:12px}
+.pay-sum span{color:var(--muted);font-weight:600}
+.pay-sum b{font-size:17px}
+.pay-acts{display:flex;align-items:center;gap:10px}
+.pay-go{flex:1;padding:14px;font-size:15px}
+.mini-give{font-size:11px;font-weight:700;color:var(--muted);padding:6px 8px;border-radius:7px;border:1px dashed var(--line);white-space:nowrap}
+.mini-give:hover{color:var(--accent);border-color:var(--accent)}
+.fine{font-size:12px;color:var(--dim);margin:12px 0 0;line-height:1.4}
+.pay-wait{display:flex;flex-direction:column;align-items:center;gap:10px;padding:34px 0 10px;text-align:center}
+.pay-wait b{font-size:17px}
+.pay-wait span{color:var(--muted)}
+.pay-wait .btn{margin-top:10px;min-width:160px}
+.spin{width:54px;height:54px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--accent);animation:spin2 .8s linear infinite}
+@keyframes spin2{to{transform:rotate(360deg)}}
+.ok{width:64px;height:64px;animation:rvCard .6s both cubic-bezier(.18,1.35,.4,1)}
+.auth-tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:16px}
+.auth-tabs button{flex:1;padding:9px;border-radius:7px;font-weight:700;color:var(--muted)}
+.auth-tabs button[aria-selected="true"]{background:var(--panel2);color:var(--accent)}
+#authForm{display:flex;flex-direction:column;gap:6px}
+#authForm label{font-size:12px;font-weight:700;color:var(--muted);margin-top:6px}
+#authForm .inp{width:100%}
+#aPw2Row{display:flex;flex-direction:column;gap:6px}
+#authForm .btn{margin-top:12px;padding:13px}
+.auth-err{color:var(--lose);font-size:13px;min-height:1.2em;margin-top:4px}
+.known{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-size:12px;color:var(--muted)}
+.known button{padding:5px 9px;border-radius:7px;background:var(--panel2);border:1px solid var(--line);font-weight:700;color:var(--fg)}
+.known button:hover{border-color:var(--accent)}
+@media (max-width:640px){.uname{display:none}.user-btn{padding:3px}.pay-acts{flex-wrap:wrap}.pay-go{flex-basis:100%}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="defs"></defs></svg>
@@ -360,9 +418,15 @@ main.wrap{max-width:1240px;width:100%}
     </nav>
     <button class="icon-btn" id="musicBtn" aria-label="Музыка" title="Музыка"></button>
     <button class="icon-btn" id="soundBtn" aria-label="Звуки" title="Звуки"></button>
-    <div class="bal">
+    <div class="bal" id="balBox" hidden>
       <span class="c" id="balance">0,00</span>
-      <button class="btn btn-hot btn-sm" data-act="topup">+ Пополнить</button>
+      <button class="mini-add" data-act="instant" id="miniAdd" aria-label="Выдать монеты">⚡</button>
+      <button class="btn btn-hot btn-sm" data-act="topup">Купить</button>
+    </div>
+    <button class="btn btn-hot btn-sm" id="loginBtn" data-act="login">Войти</button>
+    <div class="user" id="userBox" hidden>
+      <button class="user-btn" data-act="umenu" aria-haspopup="true"><span class="ava" id="uAva"></span><span class="uname" id="uName"></span></button>
+      <div class="umenu" id="umenu" hidden></div>
     </div>
   </div>
 </header>
@@ -373,18 +437,46 @@ main.wrap{max-width:1240px;width:100%}
 <div class="reveal" id="reveal" hidden></div>
 
 <div class="modal" id="modal" hidden>
-  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-    <h2 id="mTitle">Пополнить баланс</h2>
-    <p>Монеты бесплатные и существуют только в этом браузере. Выберите сумму или введите свою.</p>
-    <div class="presets" id="presets"></div>
-    <form id="topForm">
-      <input class="inp" id="topAmount" type="number" min="1" max="10000000" step="0.01" placeholder="Своя сумма" inputmode="decimal">
-      <button class="btn btn-hot" type="submit">Начислить</button>
-    </form>
-    <div class="dlg-foot">
-      <span id="resetZone"><button class="link-danger" type="button" data-act="reset1">Сбросить прогресс</button></span>
-      <button class="btn btn-ghost btn-sm" type="button" data-act="close">Закрыть</button>
+  <div class="dlg pay" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div id="payStep1">
+      <div class="pay-hd"><h2 id="mTitle">Пополнение баланса</h2><span class="demo">Демо</span></div>
+      <div class="lbl">Сумма</div>
+      <div class="presets" id="presets"></div>
+      <input class="inp" id="topAmount" type="number" min="1" max="10000000" step="1" placeholder="Своя сумма" inputmode="numeric">
+      <div class="lbl">Способ оплаты</div>
+      <div class="methods" id="methods"></div>
+      <div class="pay-sum"><span>К зачислению</span><b id="paySum"></b></div>
+      <div class="pay-acts">
+        <button class="btn btn-hot pay-go" type="button" data-act="pay" id="payGo">Оплатить</button>
+        <button class="mini-give" type="button" data-act="give" title="Выдать эту сумму сразу, без оплаты">⚡ выдать</button>
+      </div>
+      <p class="fine">Игровая оплата: настоящие деньги не списываются, данные карты не нужны и не запрашиваются.</p>
     </div>
+    <div id="payStep2" class="pay-wait" hidden><div class="spin"></div><b id="payStage">Соединение…</b><span id="payInfo"></span></div>
+    <div id="payStep3" class="pay-wait" hidden>
+      <svg class="ok" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="var(--win)" stroke-width="3"/><path d="M15 27l7 7 15-16" fill="none" stroke="var(--win)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>Оплата прошла</b><span id="payDone"></span>
+      <button class="btn btn-hot" type="button" data-act="close">Готово</button>
+    </div>
+    <div class="dlg-foot" id="payFoot"><span class="fine" id="payUser"></span><button class="btn btn-ghost btn-sm" type="button" data-act="close">Закрыть</button></div>
+  </div>
+</div>
+<div class="modal" id="auth" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="aTitle">
+    <div class="auth-tabs" role="tablist"><button type="button" data-auth="login">Вход</button><button type="button" data-auth="reg">Регистрация</button></div>
+    <h2 id="aTitle">Регистрация</h2>
+    <form id="authForm" novalidate>
+      <label for="aName">Никнейм</label>
+      <input class="inp" id="aName" autocomplete="username" maxlength="16" placeholder="от 3 до 16 символов">
+      <label for="aPw">Пароль</label>
+      <input class="inp" id="aPw" type="password" autocomplete="new-password" placeholder="минимум 4 символа">
+      <div id="aPw2Row"><label for="aPw2">Повторите пароль</label><input class="inp" id="aPw2" type="password" autocomplete="new-password"></div>
+      <div class="auth-err" id="aErr" role="alert"></div>
+      <button class="btn btn-hot" type="submit" id="aSubmit">Создать аккаунт</button>
+    </form>
+    <div class="known" id="aKnown"></div>
+    <p class="fine">Аккаунт хранится только в этом браузере, сервера нет. Не используйте пароль от других сайтов. Новый игрок получает 5 000 монет и 3 скина.</p>
+    <div class="dlg-foot"><span></span><button class="btn btn-ghost btn-sm" type="button" data-act="aclose">Закрыть</button></div>
   </div>
 </div>
 <div class="toasts" id="toasts"></div>
@@ -449,14 +541,25 @@ const pick=c=>{let x=Math.random()*c.tw;for(let k=0;k<c.pool.length;k++){x-=c.w[
 document.getElementById('defs').innerHTML=CASES.map(c=>`<linearGradient id="cg-${c.key}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.color}"/><stop offset="1" stop-color="#18181c"/></linearGradient>`).join('');
 
 /* ---------- state ---------- */
-const KEY='skinvolt.v2';
-let S={balance:5000,inv:[],uid:1,stats:{opened:0,up:0,upWin:0,best:null},sound:true,tab:'cases'};
-try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&typeof d.balance==='number')S=Object.assign(S,d)}catch(e){}
-S.inv=S.inv.filter(o=>ITEMS[o.id]);
-if(!S.inv.length&&S.stats.opened===0&&S.stats.up===0){
-  [.3,.42,.5].forEach(q=>S.inv.push({u:S.uid++,id:byPrice[Math.floor(byPrice.length*q)].id}));
+// аккаунты живут в localStorage этого браузера: {users:{ник:{salt,hash,s:состояние}}, current, guest}
+const AKEY='skinvolt.accounts';
+const fresh=()=>{const s={balance:5000,inv:[],uid:1,stats:{opened:0,up:0,upWin:0,best:null},sound:true,music:true,tab:'cases',lastAmt:1000};
+  [.3,.42,.5].forEach(q=>s.inv.push({u:s.uid++,id:byPrice[Math.floor(byPrice.length*q)].id}));return s};
+let A={users:{},current:null,guest:{}};
+try{const d=JSON.parse(localStorage.getItem(AKEY)||'null');if(d&&d.users)A=Object.assign(A,d)}catch(e){}
+let S;
+function loadUser(){
+  const u=A.current&&A.users[A.current];
+  if(!u)A.current=null;
+  S=u?Object.assign(fresh(),u.s):Object.assign(fresh(),{balance:0,inv:[]},A.guest);
+  S.inv=S.inv.filter(o=>ITEMS[o.id]);
 }
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+loadUser();
+const save=()=>{try{
+  if(A.current&&A.users[A.current])A.users[A.current].s=S;else A.guest={sound:S.sound,music:S.music,tab:S.tab};
+  localStorage.setItem(AKEY,JSON.stringify(A));
+}catch(e){}};
+const needAuth=()=>{if(A.current)return false;openAuth('reg');toast('Зарегистрируйтесь или войдите, чтобы играть');return true};
 const addItem=id=>{const o={u:S.uid++,id};S.inv.unshift(o);const b=S.stats.best;if(b==null||ITEMS[id].price>ITEMS[b].price)S.stats.best=id;return o};
 
 /* ---------- helpers ---------- */
@@ -483,6 +586,9 @@ const crate=c=>`<svg class="crate" viewBox="0 0 160 120" aria-hidden="true">
 function toast(msg,color){const t=document.createElement('div');t.className='toast';if(color)t.style.setProperty('--tc',color);t.innerHTML=msg;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),3200)}
 const invValue=()=>S.inv.reduce((a,o)=>a+ITEMS[o.id].price,0);
 function updHeader(){
+  const on=!!A.current;
+  $('#balBox').hidden=!on;$('#loginBtn').hidden=on;$('#userBox').hidden=!on;
+  if(on){$('#uName').textContent=A.current;$('#uAva').textContent=A.current[0].toUpperCase();$('#miniAdd').title=`Выдать ${(S.lastAmt||1000).toLocaleString('ru-RU')} монет`}
   $('#balance').textContent=fmt(S.balance);
   $('#invCount').textContent=S.inv.length?`· ${S.inv.length}`:'';
   const ho=$('#hOpened');if(ho){ho.textContent=S.stats.opened.toLocaleString('ru-RU');$('#hUps').textContent=S.stats.up.toLocaleString('ru-RU')}
@@ -597,9 +703,9 @@ function spinReel(reel,wi,dur,withTick){
   });
 }
 async function openCase(){
-  if(caseBusy)return;
+  if(caseBusy||needAuth())return;
   const c=CBY[openKey],cost=r2(c.price*openCount);
-  if(S.balance<cost){toast('Не хватает монет. Пополните баланс — это бесплатно.','var(--lose)');openModal();return}
+  if(S.balance<cost){toast('Не хватает монет. Пополните баланс.','var(--lose)');openModal();return}
   caseBusy=true;S.balance=r2(S.balance-cost);updHeader();
   $('#openBtn').disabled=true;$('#results').innerHTML='';
   const wins=Array.from({length:openCount},()=>pick(c).id),WI=50;
@@ -711,7 +817,7 @@ function setMult(m){
   if(best){upTarget=best.id;updUp()}
 }
 function doUpgrade(){
-  if(upBusy)return;
+  if(upBusy||needAuth())return;
   const inp=stakeVal(),t=ITEMS[upTarget],ch=chanceOf(t,inp);
   if(!t||ch<=0)return;
   if(upBal>S.balance){toast('На балансе меньше монет, чем в ставке','var(--lose)');return}
@@ -773,23 +879,118 @@ function renderInv(){
 
 /* ---------- modal ---------- */
 const PRESETS=[500,1000,5000,10000,50000,100000,250000,1000000,5000000];
-$('#presets').innerHTML=PRESETS.map(v=>`<button class="c" data-add="${v}">${v.toLocaleString('ru-RU')}</button>`).join('');
-function openModal(){$('#modal').hidden=false;$('#resetZone').innerHTML='<button class="link-danger" type="button" data-act="reset1">Сбросить прогресс</button>';setTimeout(()=>$('#topAmount').focus(),30)}
-function closeModal(){$('#modal').hidden=true}
+const METHODS=[
+ {k:'card',n:'Банковская карта',d:'Моментально',ic:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/>'},
+ {k:'sbp',n:'СБП',d:'По QR-коду',ic:'<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2"/>'},
+ {k:'crypto',n:'Криптовалюта',d:'+5% бонус',bonus:.05,ic:'<circle cx="12" cy="12" r="8"/><path d="M10 8h3a2 2 0 010 4h-3zm0 4h3.5a2 2 0 010 4H10zM10 7v10M12 6v2M12 16v2"/>'},
+ {k:'wallet',n:'Электронный кошелёк',d:'Без комиссии',ic:'<path d="M4 7h14a2 2 0 012 2v8a2 2 0 01-2 2H4z"/><path d="M4 7l11-3v3M16 13h.01"/>'},
+ {k:'skins',n:'Скинами',d:'+10% бонус',bonus:.1,ic:'<path d="M3 14l8-4h6l4-2v3l-3 2-2 4h-3l1-3H9l-4 2z"/>'}
+];
+let payAmt=1000,payMethod='card',payBusy=false;
+const payTotal=()=>r2(payAmt*(1+(METHODS.find(m=>m.k===payMethod).bonus||0)));
+function updPay(){
+  $('#presets').innerHTML=PRESETS.map(v=>`<button type="button" class="c${v===payAmt?' on':''}" data-amt="${v}">${v.toLocaleString('ru-RU')}</button>`).join('');
+  $('#methods').innerHTML=METHODS.map(m=>`<button type="button" class="meth${m.k===payMethod?' on':''}" data-meth="${m.k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${m.ic}</svg><span><b>${m.n}</b><small>${m.d}</small></span></button>`).join('');
+  $('#paySum').innerHTML=coin(payTotal());
+  $('#payGo').innerHTML=`Оплатить ${payAmt.toLocaleString('ru-RU')} ₽`;
+  $('#payUser').textContent=A.current?`Аккаунт: ${A.current}`:'';
+}
+function openModal(){
+  if(needAuth())return;
+  if(payBusy)return;
+  payAmt=S.lastAmt||1000;$('#topAmount').value=PRESETS.includes(payAmt)?'':payAmt;
+  ['#payStep2','#payStep3'].forEach(q=>$(q).hidden=true);$('#payStep1').hidden=false;$('#payFoot').hidden=false;
+  updPay();$('#modal').hidden=false;
+}
+function closeModal(){if(payBusy)return;$('#modal').hidden=true}
 function credit(v){v=r2(v);if(!(v>0))return;S.balance=r2(S.balance+v);updHeader();toast(`Начислено ${coin(v)}`,'var(--win)');if(S.tab==='upgrade'&&!upBusy)updUp()}
-$('#topForm').addEventListener('submit',e=>{e.preventDefault();const v=parseFloat($('#topAmount').value);if(!(v>0)){toast('Введите сумму больше нуля','var(--lose)');return}credit(Math.min(v,1e7));$('#topAmount').value='';closeModal()});
+function startPay(){
+  if(payBusy||!(payAmt>0))return;
+  payBusy=true;S.lastAmt=payAmt;const total=payTotal(),m=METHODS.find(x=>x.k===payMethod);
+  $('#payStep1').hidden=true;$('#payFoot').hidden=true;$('#payStep2').hidden=false;
+  $('#payInfo').textContent=`${m.n} · ${payAmt.toLocaleString('ru-RU')} ₽`;
+  const stages=['Соединение…','Подтверждение платежа…','Зачисление монет…'];
+  stages.forEach((t,k)=>setTimeout(()=>{$('#payStage').textContent=t},k*650));
+  setTimeout(()=>{
+    payBusy=false;credit(total);winS();
+    $('#payStep2').hidden=true;$('#payStep3').hidden=false;
+    $('#payDone').innerHTML=`На баланс зачислено ${coin(total)}`;
+  },2000);
+}
+$('#topAmount').addEventListener('input',e=>{const v=Math.floor(parseFloat(e.target.value));payAmt=v>0?Math.min(v,1e7):(S.lastAmt||1000);updPay()});
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeModal()});
+
+/* auth */
+let authMode='reg';
+async function hashPw(pw,salt){
+  const str=salt+':'+pw;
+  try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+  catch(e){let h=5381;for(let k=0;k<str.length;k++)h=(h*33^str.charCodeAt(k))>>>0;return 'f'+h.toString(16)}
+}
+function openAuth(mode){
+  if(caseBusy||upBusy)return;
+  authMode=mode||(Object.keys(A.users).length?'login':'reg');
+  document.querySelectorAll('[data-auth]').forEach(b=>b.setAttribute('aria-selected',b.dataset.auth===authMode));
+  $('#aTitle').textContent=authMode==='reg'?'Регистрация':'Вход в аккаунт';
+  $('#aSubmit').textContent=authMode==='reg'?'Создать аккаунт':'Войти';
+  $('#aPw2Row').hidden=authMode!=='reg';
+  $('#aPw').setAttribute('autocomplete',authMode==='reg'?'new-password':'current-password');
+  $('#aErr').textContent='';$('#aPw').value='';$('#aPw2').value='';
+  const names=Object.keys(A.users);
+  $('#aKnown').innerHTML=authMode==='login'&&names.length?`<span>Аккаунты в этом браузере:</span>${names.map(n=>`<button type="button" data-known="${esc(n)}">${esc(n)}</button>`).join('')}`:'';
+  $('#auth').hidden=false;setTimeout(()=>$('#aName').focus(),30);
+}
+const closeAuth=()=>{$('#auth').hidden=true};
+function enter(name){
+  A.current=name;loadUser();
+  upSel.clear();upBal=0;upTarget=null;openKey=null;lastDrop=[];
+  closeAuth();save();go(S.tab||'cases');
+  if(S.music&&!Music.on)Music.start();
+}
+$('#authForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const name=$('#aName').value.trim(),pw=$('#aPw').value,err=t=>{$('#aErr').textContent=t};
+  if(!/^[\wА-Яа-яЁё.\-]{3,16}$/.test(name))return err('Никнейм: от 3 до 16 букв, цифр, точек или дефисов.');
+  if(pw.length<4)return err('Пароль должен быть не короче 4 символов.');
+  const key=Object.keys(A.users).find(n=>n.toLowerCase()===name.toLowerCase());
+  if(authMode==='reg'){
+    if(key)return err('Такой никнейм уже занят в этом браузере. Войдите или выберите другой.');
+    if(pw!==$('#aPw2').value)return err('Пароли не совпадают.');
+    const salt=Math.random().toString(36).slice(2,10);
+    A.users[name]={salt,hash:await hashPw(pw,salt),s:fresh(),created:Date.now()};
+    enter(name);toast(`Добро пожаловать, ${esc(name)}! На балансе 5 000 монет`,'var(--win)');
+  }else{
+    if(!key)return err('Аккаунт не найден. Проверьте никнейм или зарегистрируйтесь.');
+    const u=A.users[key];
+    if(await hashPw(pw,u.salt)!==u.hash)return err('Неверный пароль.');
+    enter(key);toast(`С возвращением, ${esc(key)}!`);
+  }
+});
+$('#auth').addEventListener('click',e=>{
+  if(e.target.id==='auth'){closeAuth();return}
+  const t=e.target.closest('[data-auth],[data-known],[data-act="aclose"]');if(!t)return;
+  if(t.dataset.auth)openAuth(t.dataset.auth);
+  else if(t.dataset.known){$('#aName').value=t.dataset.known;$('#aPw').focus()}
+  else closeAuth();
+});
+function umenu(confirmReset){
+  const m=$('#umenu');
+  m.innerHTML=`<div class="um-hd">${esc(A.current||'')}<small>${coin(S.balance)}</small></div>
+    ${confirmReset?'<button data-act="reset2" class="danger">Да, сбросить прогресс</button>':'<button data-act="reset1">Сбросить прогресс</button>'}
+    <button data-act="switch">Сменить аккаунт</button><button data-act="logout">Выйти</button>`;
+  m.hidden=false;
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#userBox'))$('#umenu').hidden=true});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('#modal').hidden)closeModal();if(!$('#auth').hidden)closeAuth();$('#umenu').hidden=true});
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-tab],[data-case],[data-act],[data-count],[data-sell],[data-toup],[data-tog],[data-unsel],[data-tgt],[data-mult],[data-bal],[data-add]');
+  const t=e.target.closest('[data-tab],[data-case],[data-act],[data-count],[data-sell],[data-toup],[data-tog],[data-unsel],[data-tgt],[data-mult],[data-bal],[data-amt],[data-meth]');
   if(!t)return;
   const d=t.dataset;
   if(d.tab){go(d.tab);return}
   if(d.case){openKey=d.case;lastDrop=[];render();window.scrollTo({top:0});return}
   if(d.count){if(caseBusy)return;openCount=+d.count;renderCase();return}
-  if(d.add){credit(+d.add);closeModal();return}
   if(d.sell){const p=sell(+d.sell);if(p){toast(`Продано за ${coin(p)}`);updHeader();if(S.tab==='inventory')renderInv();else showResults()}return}
   if(d.toup){const u=+d.toup;upSel=new Set([u]);go('upgrade');return}
   if(d.tog){if(upBusy)return;const u=+d.tog;upSel.has(u)?upSel.delete(u):upSel.add(u);updUp();return}
@@ -797,8 +998,17 @@ document.addEventListener('click',e=>{
   if(d.tgt){if(upBusy)return;upTarget=+d.tgt;updUp();return}
   if(d.mult){if(upBusy)return;setMult(+d.mult);return}
   if(d.bal){if(upBusy)return;const v=d.bal==='max'?S.balance:d.bal==='half'?r2(S.balance/2):0;upBal=r2(v);$('#upBal').value=upBal||'';updUp();return}
+  if(d.amt){payAmt=+d.amt;$('#topAmount').value='';updPay();return}
+  if(d.meth){payMethod=d.meth;updPay();return}
   switch(d.act){
     case 'topup':openModal();break;
+    case 'login':openAuth();break;
+    case 'umenu':$('#umenu').hidden?umenu(false):($('#umenu').hidden=true);break;
+    case 'switch':$('#umenu').hidden=true;openAuth('login');break;
+    case 'logout':if(caseBusy||upBusy)break;$('#umenu').hidden=true;{const n=A.current;A.current=null;loadUser();upSel.clear();upBal=0;upTarget=null;openKey=null;lastDrop=[];save();go(S.tab||'cases');toast(`Вы вышли из аккаунта ${esc(n)}`)}break;
+    case 'give':if(!(payAmt>0))break;S.lastAmt=payAmt;credit(payAmt);closeModal();break;
+    case 'instant':if(needAuth())break;credit(S.lastAmt||1000);tone(1200,.08,'triangle',.05);break;
+    case 'pay':startPay();break;
     case 'close':closeModal();break;
     case 'back':if(!caseBusy){openKey=null;render()}break;
     case 'open':openCase();break;
@@ -808,8 +1018,8 @@ document.addEventListener('click',e=>{
     case 'sellAll':{const s=r2(invValue());S.balance=r2(S.balance+s);S.inv=[];upSel.clear();toast(`Продано всё за ${coin(s)}`);updHeader();renderInv();break}
     case 'upgrade':doUpgrade();break;
     case 'more':upLimit+=60;updTargets();break;
-    case 'reset1':$('#resetZone').innerHTML='<span style="font-size:13px;color:var(--muted)">Удалить баланс и инвентарь?</span> <button class="link-danger" type="button" data-act="reset2">Да, сбросить</button>';break;
-    case 'reset2':S={balance:5000,inv:[],uid:1,stats:{opened:0,up:0,upWin:0,best:null},sound:S.sound,tab:'cases'};upSel.clear();upBal=0;upTarget=null;openKey=null;lastDrop=[];closeModal();go('cases');toast('Прогресс сброшен, баланс 5 000');break;
+    case 'reset1':umenu(true);break;
+    case 'reset2':if(caseBusy||upBusy)break;S=Object.assign(fresh(),{sound:S.sound,music:S.music});upSel.clear();upBal=0;upTarget=null;openKey=null;lastDrop=[];$('#umenu').hidden=true;save();go('cases');toast('Прогресс сброшен, баланс 5 000');break;
   }
 });
 document.addEventListener('input',e=>{
