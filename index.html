@@ -475,7 +475,7 @@ main.wrap{max-width:1240px;width:100%}
       <button class="btn btn-hot" type="submit" id="aSubmit">Создать аккаунт</button>
     </form>
     <div class="known" id="aKnown"></div>
-    <p class="fine">Аккаунт хранится только в этом браузере, сервера нет. Не используйте пароль от других сайтов. Новый игрок получает 5 000 монет и 3 скина.</p>
+    <p class="fine">Аккаунт хранится только в этом браузере, сервера нет. Не используйте пароль от других сайтов. Новый игрок получает 3 стартовых скина, монеты можно купить.</p>
     <div class="dlg-foot"><span></span><button class="btn btn-ghost btn-sm" type="button" data-act="aclose">Закрыть</button></div>
   </div>
 </div>
@@ -543,7 +543,7 @@ document.getElementById('defs').innerHTML=CASES.map(c=>`<linearGradient id="cg-$
 /* ---------- state ---------- */
 // аккаунты живут в localStorage этого браузера: {users:{ник:{salt,hash,s:состояние}}, current, guest}
 const AKEY='skinvolt.accounts';
-const fresh=()=>{const s={balance:5000,inv:[],uid:1,stats:{opened:0,up:0,upWin:0,best:null},sound:true,music:true,tab:'cases',lastAmt:1000};
+const fresh=()=>{const s={balance:0,inv:[],uid:1,stats:{opened:0,up:0,upWin:0,best:null},sound:true,music:true,tab:'cases',lastAmt:1000};
   [.3,.42,.5].forEach(q=>s.inv.push({u:s.uid++,id:byPrice[Math.floor(byPrice.length*q)].id}));return s};
 let A={users:{},current:null,guest:{}};
 try{const d=JSON.parse(localStorage.getItem(AKEY)||'null');if(d&&d.users)A=Object.assign(A,d)}catch(e){}
@@ -958,7 +958,7 @@ $('#authForm').addEventListener('submit',async e=>{
     if(pw!==$('#aPw2').value)return err('Пароли не совпадают.');
     const salt=Math.random().toString(36).slice(2,10);
     A.users[name]={salt,hash:await hashPw(pw,salt),s:fresh(),created:Date.now()};
-    enter(name);toast(`Добро пожаловать, ${esc(name)}! На балансе 5 000 монет`,'var(--win)');
+    enter(name);toast(`Добро пожаловать, ${esc(name)}! В инвентаре 3 стартовых скина`,'var(--win)');
   }else{
     if(!key)return err('Аккаунт не найден. Проверьте никнейм или зарегистрируйтесь.');
     const u=A.users[key];
@@ -1019,7 +1019,7 @@ document.addEventListener('click',e=>{
     case 'upgrade':doUpgrade();break;
     case 'more':upLimit+=60;updTargets();break;
     case 'reset1':umenu(true);break;
-    case 'reset2':if(caseBusy||upBusy)break;S=Object.assign(fresh(),{sound:S.sound,music:S.music});upSel.clear();upBal=0;upTarget=null;openKey=null;lastDrop=[];$('#umenu').hidden=true;save();go('cases');toast('Прогресс сброшен, баланс 5 000');break;
+    case 'reset2':if(caseBusy||upBusy)break;S=Object.assign(fresh(),{sound:S.sound,music:S.music});upSel.clear();upBal=0;upTarget=null;openKey=null;lastDrop=[];$('#umenu').hidden=true;save();go('cases');toast('Прогресс сброшен');break;
   }
 });
 document.addEventListener('input',e=>{
